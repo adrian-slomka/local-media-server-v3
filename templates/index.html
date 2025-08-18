@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Stream Movies & TV Shows</title>
+    <script src="{{ url_for('static', filename='js/api/_token.js') }}"></script>
+</head>
+<body>
+    <div class="app-layout">        
+        <div class="app-layout__header">
+            <div class="header-container header-container__mobile">
+                <div class="actions">
+                    <a href="/logout" class="profile-link">
+                        <div class="header-profile">
+                            <img id="profile-picture" src="/static/images/profiles/default_profile.jpg">
+                        </div>
+                    </a>
+                    <div class="profile-title">
+                        <p>Hello,</p>
+                        <h4 id="profile-name">⠀</h4>
+                    </div>
+                </div>
+                <!-- <div class="header-internal-links">
+                    <a href="/" class="notifications-menu header-tile header-tile--bg-border">
+                        <div class="header-tile-svg">
+                            <svg viewBox="0 0 24 24" fill="none">
+                            <g clip-path="url(#clip0_15_159)">
+                            <rect width="24" height="24" fill="none"/>
+                            <path d="M9.5 19C8.89555 19 7.01237 19 5.61714 19C4.87375 19 4.39116 18.2177 4.72361 17.5528L5.57771 15.8446C5.85542 15.2892 6 14.6774 6 14.0564C6 13.2867 6 12.1434 6 11C6 9 7 5 12 5C17 5 18 9 18 11C18 12.1434 18 13.2867 18 14.0564C18 14.6774 18.1446 15.2892 18.4223 15.8446L19.2764 17.5528C19.6088 18.2177 19.1253 19 18.382 19H14.5M9.5 19C9.5 21 10.5 22 12 22C13.5 22 14.5 21 14.5 19M9.5 19C11.0621 19 14.5 19 14.5 19" stroke="currentColor" stroke-linejoin="round"/>
+                            <path d="M12 5V3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                            <defs>
+                            <clipPath id="clip0_15_159">
+                            <rect width="24" height="24" fill="none"/>
+                            </clipPath>
+                            </defs>
+                            </svg>
+                        </div>
+                        <div class="notifications-dot">
+                            <svg width="12px" height="12px" viewBox="0 0 12 12">
+                                <circle fill="currentColor" cx="6" cy="6" r="6"></circle>
+                            </svg>
+                        </div>
+                    </a>
+                </div> -->
+            </div>
+        </div>
+        <div class="app-layout__content">
+            <div class="container">
+                <div class="nav nav-font-mobile --padding-nav">
+                    <div class="nav-t --highlight" id="featured">Your Feed</div>
+                    <div class="nav-t" id="browse">Browse</div>
+                    <!-- <div class="nav-t" id="watchlist">My List</div> -->
+                    <div class="nav-t" id="search">Search</div>
+                </div>
+                <div class="hero-section --padding-bottom-5rem" id="hero" style="display:none;">
+                    <div class="scroller-container">
+                        <div class="content-wrapper scroller" id="hero-sl"></div>               
+                        <div class="scroller-controls">
+                            <div class="actions-dots" id="hero-dots"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab " id="feat-tab">
+                    <div class="dynamic-feed">
+                        <div class="carousel-wrapper" data-t="user-feed">
+                            <div class="content-wrapper feed-header feed-font-mobile">
+                                <div class="feed-header-container">
+                                    <div class="feed-header__title --light-font-h2">
+                                        <h2>Recently updated from Your watchlist</h2>
+                                    </div>
+                                    <div class="feed-header__arrows">
+                                        <div id="arrow-left" class="arrow-button-l">←</div>
+                                        <div id="arrow-right" class="arrow-button-r">→</div>
+                                    </div>
+                                </div>
+                                <a class="feed-header__link --cursor-pointer" href="/">
+                                    <p>See all</p>
+                                </a>
+                            </div>
+                            <div class="">
+                                <div class="wide-cards-carousel content-wrapper" id="user-new">
+                                    <!-- JS insert -->
+                                    <a href="" class="poster__placeholder">
+                                        <img src="" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="" data-t="user-playlist">
+                            <div class="content-wrapper feed-header feed-font-mobile">
+                                <div class="feed-header__title --light-font-h2">
+                                    <h2>Collections</h2>
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="" data-t="user-stats">
+                            <div class="content-wrapper feed-header feed-font-mobile">
+                                <div class="feed-header__title --light-font-h2">
+                                    <h2>My Stats</h2>
+                                </div>
+                            </div>
+                        </div>                         -->
+                    </div>
+                </div>
+                <div class="tab --disabled" id="browse-tab">
+                    <div class="dynamic-feed">
+                        <div class="carousel-wrapper" data-t="new">
+                            <div class="content-wrapper feed-header feed-font-mobile">
+                                <div class="feed-header-container">
+                                    <div class="feed-header__title --light-font-h2">
+                                        <h2>Recently Updated</h2>
+                                    </div>
+                                    <div class="feed-header__arrows">
+                                        <div id="arrow-left" class="arrow-button-l">←</div>
+                                        <div id="arrow-right" class="arrow-button-r">→</div>
+                                    </div>
+                                </div>
+                                <a class="feed-header__link --cursor-pointer" href="/">
+                                    <p>See all</p>
+                                </a>
+                            </div>
+                            <div class="">
+                                <div class="wide-cards-carousel content-wrapper" id="new-carousel">
+                                    <!-- JS insert -->
+                                    <a href="" class="poster__placeholder">
+                                        <img src="" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-wrapper" data-t="tv">
+                            <div class="content-wrapper feed-header feed-font-mobile">
+                                <div class="feed-header-container">
+                                    <div class="feed-header__title --light-font-h2">
+                                        <h2>TV Show</h2>
+                                    </div>
+                                    <div class="feed-header__arrows">
+                                        <div id="arrow-left" class="arrow-button-l">←</div>
+                                        <div id="arrow-right" class="arrow-button-r">→</div>
+                                    </div>
+                                </div>
+                                <a class="feed-header__link --cursor-pointer" href="/">
+                                    <p>See all</p>
+                                </a>
+                            </div>
+                            <div class="">
+                                <div class="wide-cards-carousel content-wrapper" id="tv-carousel">
+                                    <!-- JS insert -->
+                                    <a href="" class="poster__placeholder">
+                                        <img src="" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-wrapper" data-t="movie">
+                            <div class="content-wrapper feed-header feed-font-mobile">
+                                <div class="feed-header-container">
+                                    <div class="feed-header__title --light-font-h2">
+                                        <h2>Movie</h2>
+                                    </div>
+                                    <div class="feed-header__arrows">
+                                        <div id="arrow-left" class="arrow-button-l">←</div>
+                                        <div id="arrow-right" class="arrow-button-r">→</div>
+                                    </div>
+                                </div>
+                                <a class="feed-header__link --cursor-pointer" href="/">
+                                    <p>See all</p>
+                                </a>
+                            </div>
+                            <div class="">
+                                <div class="wide-cards-carousel content-wrapper" id="movie-carousel">
+                                    <!-- JS insert -->
+                                    <a href="" class="poster__placeholder">
+                                        <img src="" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="tab --disabled" id="watchlist-tab">
+                </div> -->
+                <div class="tab --disabled" id="search-tab">
+                    <div class="search-container">
+                        <input class="search" type="text" id="search-item" placeholder="Search..." placeholder="Search...">
+                    </div>
+                    <div class="results-container content-wrapper" id="search-results"></div>
+                </div>              
+            </div>
+        </div>
+        <div class="app-layout_footer">
+            <div class="footer">
+                <div class="footer-line"></div> 
+                <br>
+                <p style="font-size: 2rem;">-</p>
+            </div>            
+        </div>
+    </div>
+
+
+<script type="module" src="{{ url_for('static', filename='js/api/_api.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/userProfile.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/userFeed.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/pages/homePage.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/pages/searchPage.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/components/tabsToggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/stickyHeader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/carouselScroller.js') }}"></script>
+</body>
+</html>

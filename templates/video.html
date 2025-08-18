@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title id="page-title"></title>
+    
+
+    <script src="{{ url_for('static', filename='js/api/_token.js') }}"></script>
+    <link href="https://vjs.zencdn.net/8.23.3/video-js.css" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='video-js-crunchy.css') }}" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.23.3/video.min.js"></script>
+
+</head>
+<body class="no-bg-gradient">
+    <div class="app-layout">
+        <div class="app-layout__header">
+            <div class="media-nav --no-padding">
+                <div title="Go Back" class="video-back" onclick="redirectBack()">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="interaction-container">
+                    <div class="options-menu --hidden" id="options-menu" role="menu">
+                        <button class="i-option" role="menuitem">Delete video from library</button>
+                    </div>                    
+                    <div class="__watchlist v-icon" title="Your Watchlist">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 6c0-1.4 0-2.1.272-2.635a2.5 2.5 0 0 1 1.093-1.093C6.9 2 7.6 2 9 2h6c1.4 0 2.1 0 2.635.272a2.5 2.5 0 0 1 1.092 1.093C19 3.9 19 4.6 19 6v13.208c0 1.056 0 1.583-.217 1.856a1 1 0 0 1-.778.378c-.349.002-.764-.324-1.593-.976L12 17l-4.411 3.466c-.83.652-1.245.978-1.594.976a1 1 0 0 1-.778-.378C5 20.791 5 20.264 5 19.208V6z" fill="currentColor"/>
+                        </svg>                        
+                    </div>
+                    <div title="Options Menu" class="__options v-icon --relative" id="options-toggle" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-controls="options-menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="24" fill="none"/>
+                            <circle cx="12" cy="7" r="0.5" transform="rotate(90 12 7)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="0.5" transform="rotate(90 12 12)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="17" r="0.5" transform="rotate(90 12 17)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>                        
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <div class="watchpage-container">
+            <div id="v" class="video-player-wrapper">
+                <!-- JS insert -->
+            </div>
+
+            <div class="video-data-container watchpage-wrapper">
+                <div class="watchpage-title-container">
+                    <div class="main-title wp-title-h1">
+                        <a id="mediaId" href=""><!-- JS insert -->
+                            <h1 id="media-title"><!-- JS insert --></h1>
+                        </a>
+                    </div>
+                    <div>
+                        <div class="sub-title wp-title-h1">
+                            <h1 id="media-ep"><!-- JS insert --></h1>
+                        </div>
+                        <div class="video-released">
+                            <h3 id="video-released"><!-- JS insert --></h3>
+                        </div> 
+                    </div>
+
+                    <div class="video-overview">
+                        <p id="video-overview"><!-- JS insert --></p>
+                    </div>
+                </div> 
+            </div>
+            <div class="next-videos-container watchpage-wrapper">
+                
+            </div>
+        </div>
+    </div>
+
+
+
+<script src="{{ url_for('static', filename='js/components/stickyHeader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/optionsMenu.js') }}"></script>
+
+
+<script src="{{ url_for('static', filename='js/api/_api.js') }}" type="module" ></script>
+<script src="{{ url_for('static', filename='js/pages/videoPage.js') }}" type="module" ></script>
+<script src="{{ url_for('static', filename='js/player/videoPlayerTheme.js') }}" type="module"></script>
+<script src="{{ url_for('static', filename='js/player/videoTimeTracker.js') }}" type="module"></script>
+<script src="{{ url_for('static', filename='js/player/captionPreferences.js') }}" type="module"></script>
+
+
+
+<script>
+function redirectBack() {
+    const path = window.location.pathname;
+    if (/^\/\d+\/watch\/\d+$/.test(path)) {
+        const redirectTo = path.split('/').slice(0, 2).join('/');
+        window.location.href = redirectTo;
+    }
+}
+</script>
+<!-- <script>
+  alert(
+    "screen.width: " + window.screen.width + 
+    "\nscreen.height: " + window.screen.height +
+    "\ninnerWidth: " + window.innerWidth + 
+    "\ninnerHeight: " + window.innerHeight
+  );
+</script> -->
+</body>
+</html>

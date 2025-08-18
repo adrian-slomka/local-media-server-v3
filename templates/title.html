@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Stream Movies & TV Shows</title>
+
+    <script src="{{ url_for('static', filename='js/api/_token.js') }}"></script>
+</head>
+<body class="no-bg-gradient">
+    <div id="loading-overlay" style="
+        position: fixed;
+        top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 2rem;
+        z-index: 9999;
+    ">
+        Loading...
+    </div>
+    <div class="app-layout app-layout--hidden">
+        <div class="app-layout__header">
+            <div class="media-nav">
+                <a href="/" class="media-back">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z" fill="currentColor"/>
+                    </svg>
+                </a>
+                <div class="interaction-container">
+                    <div class="options-menu --hidden" id="options-menu" role="menu">
+                        <button class="i-option" role="menuitem">placeholder#1</button>
+                        <button class="i-option" role="menuitem">placeholder#2</button>
+                    </div>                    
+                    <div class="__watchlist i-icon" id="watchlist"> <!-- i-icon-active -->
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 6c0-1.4 0-2.1.272-2.635a2.5 2.5 0 0 1 1.093-1.093C6.9 2 7.6 2 9 2h6c1.4 0 2.1 0 2.635.272a2.5 2.5 0 0 1 1.092 1.093C19 3.9 19 4.6 19 6v13.208c0 1.056 0 1.583-.217 1.856a1 1 0 0 1-.778.378c-.349.002-.764-.324-1.593-.976L12 17l-4.411 3.466c-.83.652-1.245.978-1.594.976a1 1 0 0 1-.778-.378C5 20.791 5 20.264 5 19.208V6z" fill="currentColor"/>
+                        </svg>                        
+                    </div>
+                    <div class="__options i-icon --relative" id="options-toggle" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-controls="options-menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="24" fill="none"/>
+                                <circle cx="12" cy="7" r="0.5" transform="rotate(90 12 7)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="12" r="0.5" transform="rotate(90 12 12)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="17" r="0.5" transform="rotate(90 12 17)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>                        
+                    </div>
+
+                </div>
+            </div>
+        </div> 
+        
+        <div class="app-layout__content">
+            <div class="backdrop-wrapper" id="backdrop-img">
+                <!-- JS insert -->
+            </div>
+            <div class="media-container">
+                <div class="media-title-container feed-font-mobile">
+                    <div class="media-title-content">
+                        <div class="media-title">
+                            <div class="media-img" id="logo-img">
+                                <!-- JS insert -->  
+                            </div>
+                        </div>
+                    </div>
+                    <div class="media-details-container media-details --fat-font --font-size-big" id="item-info">
+                        <!-- JS insert -->
+                    </div>
+                    <div class="media-details-container media-genres --slim-font" id="item-genres">
+                        <!-- JS insert -->
+                    </div>                    
+                </div>
+                <div class="media-content-spacer"></div> 
+                <div class="media-content" id="m-content">
+                    <div class="media-playback-container media-content-wrapper --padding-top-2rem">
+                        <div class="media-continue-info-container">
+                            <div class="media-continue-text --font-mobile">
+                                <div class="continue-text __c-text-left" data-t="video-info"><!-- JS insert --></div>
+                                <div class="continue-text __c-text-right" data-t="video-duration-info"><!-- JS insert --></div>
+                            </div>
+                            
+                            <div class="media-continue-progress-bar" data-t="video-progress-bar">
+                                <div class="__continue-progress-bar__progress" style="width: 0%;"><!-- JS insert --></div>
+                            </div>
+                        </div>
+                        <div class="media-continue-btn-container">
+                            <div class="media-continue-btn --font-mobile" data-t="video-status"><!-- JS insert --></div>
+                        </div>
+                    </div> 
+
+                    <div class="content-wrapper collapsable">
+                        <div class="media-info-container feed-font-mobile --padding-top-2rem --font-size-vbig " collapsed="false"> <!-- collapsed -->
+                            <div class="media-tagline" data="tagline"></div>
+                            <br>
+                            <div class="media-overview" data="overview"></div>
+                        </div>
+                        <span class="see-more-btn">See more</span>
+                    </div>
+                    
+                    <div class="videos-container content-wrapper">
+                        <div class=" feed-header feed-font-mobile">
+                            <div class="feed-header-container --relative">
+                                <div class="feed-header__arrows" id="season-toggle" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-controls="season-menu">
+                                    <svg fill="currentColor" height="35px" width="35px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                        viewBox="0 0 55.751 55.751" xml:space="preserve">
+                                    <g>
+                                        <path d="M31.836,43.006c0.282-0.281,0.518-0.59,0.725-0.912L54.17,20.485c2.107-2.109,2.109-5.528,0-7.638
+                                            c-2.109-2.107-5.527-2.109-7.638,0l-18.608,18.61L9.217,12.753c-2.109-2.108-5.527-2.109-7.637,0
+                                            C0.527,13.809-0.002,15.19,0,16.571c-0.002,1.382,0.527,2.764,1.582,3.816l21.703,21.706c0.207,0.323,0.445,0.631,0.729,0.913
+                                            c1.078,1.078,2.496,1.597,3.91,1.572C29.336,44.604,30.758,44.084,31.836,43.006z"/>
+                                    </g>
+                                    </svg>
+                                </div>
+                                <div class="season-menu --hidden" id="season-menu" role="menu" aria-labelledby="season-toggle">
+                                    <!-- JS insert -->
+                                </div>                                                                
+                                <div class="feed-header__title --light-font-h2" data="media-seasons">
+                                    <!-- JS insert -->
+                                </div>
+                            </div>
+                            <div class="feed-header__sort">
+                                <div class="media-sort -media-padding --round --border --cursor-pointer " data-sort="newest">Newest</div>
+                                <div class="media-sort -media-padding --round --border --cursor-pointer" data-sort="oldest">Oldest</div>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <!-- JS insert -->
+                        </div>   
+                    </div>
+
+                </div>  
+                <div class="app-layout_footer --footer-bg-black">
+                    <div class="footer">
+                        <div class="footer-line"></div> 
+                        <br>
+                        <p style="font-size: 2rem;">-</p>
+                    </div>            
+                </div>                   
+            </div>         
+        </div>
+    </div>
+
+
+<script type="module" src="{{ url_for('static', filename='js/api/_api.js') }}"></script>    
+<script type="module" src="{{ url_for('static', filename='js/pages/titlePage.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/userLibrary.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/components/stickyHeader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/optionsMenu.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/seasonsMenu.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/sortEpisodes.js') }}"></script>
+
+
+
+
+</body>
+</html>
+
