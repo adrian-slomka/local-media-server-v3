@@ -67,7 +67,7 @@ class VideoElement {
             },
             // controlBar: {skipButtons: {forward: 5, backward: 10}}, 
             spatialNavigation: {enabled: true, horizontalSeek: true}, 
-            html5: {preloadTextTracks: false, nativeControlsForTouch: true}
+            html5: {preloadTextTracks: false, nativeControlsForTouch: true},
         });
 
         document.getElementById('video').classList.add('video-js');
@@ -138,11 +138,12 @@ class VideoPageLoader {
             apiFetch(`/content/v1/video/${this.videoId}`).then(res => res.json()),
             apiFetch(`/accounts/v1/p?v=${this.videoId}`).then(res => res.json())
         ]);
-
+        
+        const still = account.video_start_time <= 0? video.still_path || video.metadata.key_frame : null;
         // async - Insert Video Source
         this.video.insertVideo({
             videoSrc: `/play?v=${video.hash_key}`,
-            previewImg: video.still_path || video.metadata.key_frame,
+            previewImg: still,
             videoId: this.videoId,
             itemId: this.id,
             startTime: account.video_start_time,
