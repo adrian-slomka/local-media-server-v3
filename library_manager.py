@@ -460,18 +460,24 @@ def transcode_to_mp4_264_aac(file_path: str):
     
     output_file = os.path.splitext(file_path)[0] + '.mp4'
     
-    # Ensure the output file doesn't already exist
+    # Ensure the output file doesn't already exist by renaming the OLD file to keep subtitles path correctly pointing to old name
     if os.path.exists(output_file):
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        new_file_name = f'{os.path.splitext(file_path)[0]}_{timestamp}.mp4'
-        
-        logger.warning(
-            f'Output file already exists: "{os.path.basename(output_file)}". '
-            f'Renaming to "{os.path.basename(new_file_name)}" to avoid overwriting. '
-            f'Original base name: "{os.path.basename(file_path)}", Timestamp: {timestamp}'
-        )
+        file, extension = os.path.splitext(file_path)
+        renamed_file_path = f'{file}_{timestamp}{extension}'
+        try:
+            os.rename(file_path, renamed_file_path) # temp sol, might break if transfering / chaning names on dif sys
+            file_path = renamed_file_path
 
-        output_file = new_file_name
+            logger.warning(
+                f'Output file already exists: "{os.path.basename(output_file)}". '
+                f'Renaming OLD (Input) to "{os.path.basename(renamed_file_path)}" to avoid overwriting. '
+                f'Output: "{os.path.basename(file_path)}"'
+            )
+        except Exception as e:
+            output_file = f'{file}_{timestamp}.mp4'
+            logger.warning(f'failed to rename transcoded file {os.path.basename(file_path)}. fallback, output filename changed instead. ! Subtitles path might break !', exc_info=True)
+
         
     # FFmpeg command to transcode a video using NVIDIA GPU acceleration (NVENC) for video and AAC for audio
     # Subtitles should be extracted separately if needed
@@ -480,7 +486,7 @@ def transcode_to_mp4_264_aac(file_path: str):
         '-i', file_path,
         
         # Video encoding settings
-        '-c:v', 'h264_nvenc',       # Use NVIDIA GPU acceleration ("libx264" for CPU encoding)
+        '-c:v', 'h264_nvenc',       # Use NVIDIA GPU acceleration
         '-rc', 'vbr_hq',            # Use high-quality variable bitrate mode
         '-preset', 'fast',          # Encoding speed/quality trade-off: slow > medium > fast
         '-cq:v', '19',              # Constant quality (lower = higher quality)
