@@ -509,7 +509,11 @@ a {
 }
 
 .progress-bar__progress {
-    background-color: #ff640a;
+    background: linear-gradient(90deg, 
+    #f8e9a1,
+    #d1ac70, 
+    #997463    
+    );
     height: 100%;
     border-radius: 25px;   
 }
@@ -2009,5 +2013,8 @@ svg {
 @media (max-width: 1000px) {
     .next-episode-banner {
         font-size: 2rem;
+    }
+    .watchpage-container {
+        margin-top: 72px;
     }
 }
