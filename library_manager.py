@@ -43,9 +43,10 @@ def create_settings():
     
     template = {
         'libraries': {'movies': [],'tv': []},
-        'tmdb_additional_data_requests': True,
-        'scheduled_db_updates': True,
-        'download_extra_images': True
+        'enable_tmdb_requests': True,
+        'enable_tmdb_daily_updates': True,
+        'enable_tmdb_optional_images': True,
+        'keep_original_video_files': False
     }
 
     try:
@@ -527,8 +528,16 @@ def transcode_to_mp4_264_aac(file_path: str):
         logger.error(f'transcoding file failed: {os.path.basename(file_path)}', exc_info=True)
         return file_path # returns original file path string
 
+    keep_original = False
+    try:
+        settings = load_settings()
+        keep_original = settings.get('keep_original_video_files')
+    except Exception as e:
+        logger.warning(f'failed to settings "keep_original_video_files", defaulting to "False", error -> {e}', exc_info=True)
 
-    remove_file_with_retry(file_path)
+    if not keep_original:    
+        remove_file_with_retry(file_path)
+
     return output_file
 
 
@@ -1312,8 +1321,8 @@ def sync_libraries():
 
     # 6. Request data for tv/movie title from tmdb api
     thread_tmdb = None
-    if settings.get('tmdb_additional_data_requests'):
-        # request_and_udpdate_with_additional_data(catalog)
+    if settings.get('enable_tmdb_requests'):
+        # request_and_udpdate_with_additional_data
         thread_tmdb = threading.Thread(target=request_and_udpdate_with_additional_data, args=(catalog,))
 
 
