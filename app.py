@@ -802,9 +802,11 @@ def get_user_profile():
         profile_name = user.user_profile.profile_name
         profile_picture = user.user_profile.profile_picture
     except Exception as e:
-        logger.error(f'failed to load profile name. defaulting to "Guest". error -> {e}', exc_info=True)
+        logger.error(f'failed to load profile name. redirecting to logout in attempt to clean cache. error -> {e}', exc_info=True)
         profile_name = 'Guest'
         profile_picture = 'default_profile.jpg'
+        return redirect(url_for('logout'))
+
 
     
     return jsonify({'profile': profile_name, 'profile_picture': profile_picture})
