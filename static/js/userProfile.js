@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await apiFetch('/accounts/v1/me');
         const data = await response.json();
 
+        // Check if API returned an error
+        if (data.error) {
+            console.error('API returned an error:', data.error);
+            window.location.href = '/logout'; // redirect to logout
+            return;
+        }
+
         const username = data.profile;
         const profilePicture = `/static/images/profiles/${data.profile_picture}`;
 
