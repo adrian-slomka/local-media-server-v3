@@ -243,9 +243,9 @@ class PageLoader {
             accountRes.json()
             ]);
 
-            if (videos.error) {
-                window.location.href = '/404';
-            }
+            // if (videos.error) {
+            //     window.location.href = '/404';
+            // }
 
             // UI media updates
             this.background.setImage(item.backdrop_path || '');
