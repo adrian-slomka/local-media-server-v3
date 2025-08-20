@@ -597,20 +597,30 @@ def ffmpeg_key_frame(video_path, hash_key, duration):
 
 
 def get_subtitles(path: str):
+        vtt_out = []
+
         vtt, srt = find_existing_subtitles(path)
+
         if vtt:
-            vtt = norm_sub_data(vtt)
-            return vtt
+            norm = norm_sub_data(vtt)
+            if norm:
+                vtt_out.extend(norm)
         if srt:
-            vtt = convert_to_vtt(srt)
-            vtt = norm_sub_data(vtt)
-            return vtt
-        
-        vtt = extract_subtitles(path)
-        if vtt:
-            vtt = norm_sub_data(vtt)
-            return vtt
-        
+            converted = convert_to_vtt(srt)
+            norm = norm_sub_data(converted)
+            if norm:
+                vtt_out.extend(norm)
+                 
+
+        vtt_extracted = extract_subtitles(path)
+        if vtt_extracted:
+            norm = norm_sub_data(vtt_extracted)
+            if norm:
+                vtt_out.extend(norm)
+
+        if vtt_out:
+            return vtt_out     
+           
         logger.debug(f'no subtitles found or extracted for "{os.path.basename(path)}"')
         return []
 
@@ -648,7 +658,7 @@ def find_existing_subtitles(path: str) -> list[dict]:
                             srt.append({'path': sub_path})
 
                 # check for "subs" folder within dir and grab all the subs from that folder
-                if folder == 'subs' or folder == 'Subs':
+                if folder.lower() == 'subs':
                     folder_path = os.path.join(root, folder)
                     for file in os.listdir(folder_path):
                         if file.endswith(".vtt"):
@@ -665,7 +675,8 @@ def convert_to_vtt(srt: list[dict]) -> list[dict]:
     for subtitles in srt:
         path = subtitles.get('path')
         new_vtt_path = f'{os.path.splitext(path)[0]}.vtt' # remove extension .srt and add .vtt extensions (dont use .replace)
-
+        if os.path.exists(new_vtt_path):
+            continue
         with open(path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
@@ -1022,6 +1033,8 @@ def extract_subtitles(video_path: str) -> list[dict]:
         lang = subs.get('tags', {}).get('language', 'unknown') 
 
         output_path = os.path.join(output_folder_norm, f"{index}_{lang}.vtt")
+        if os.path.exists(output_path):
+            continue
 
         extract_cmd = [
             FFMPEG_PATH,
