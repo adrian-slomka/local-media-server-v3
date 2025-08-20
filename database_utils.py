@@ -153,6 +153,7 @@ class MediaItem(Base):
     hash_key: Mapped[str] = mapped_column(nullable=False, unique=True)
     entry_created: Mapped[int] = mapped_column(nullable=True)
     entry_updated: Mapped[int] = mapped_column(nullable=True)
+    new_video_inserted: Mapped[int] = mapped_column(nullable=True)
 
     # Many to Many
     genres: Mapped[list[Genre]] = relationship(secondary=media_genres, back_populates='media_item')
@@ -618,6 +619,7 @@ class UserPlayback(Base):
 
 
 def update_attrs_if_changed(obj, data: dict, mapping: dict):
+    global last_updated_flag
     updated = False
 
     for attr, key in mapping.items():
@@ -625,6 +627,7 @@ def update_attrs_if_changed(obj, data: dict, mapping: dict):
         if getattr(obj, attr) != new_value:
             setattr(obj, attr, new_value)
             updated = True
+            last_updated_flag = True
 
     return updated
 
@@ -1143,7 +1146,7 @@ def insert_video_file(id, data: dict):
             entry_updated=int(datetime.now(timezone.utc).timestamp())
             )
         item.media_metadata.append(video)
-        item.entry_updated = int(datetime.now(timezone.utc).timestamp())
+        item.new_video_inserted = int(datetime.now(timezone.utc).timestamp())
         session.commit()
         video_id = video.id
 

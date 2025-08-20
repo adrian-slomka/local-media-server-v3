@@ -26,7 +26,7 @@ from library_manager import sync_libraries, create_settings, load_settings
 logging.basicConfig(
     filename='logs.log', 
     encoding='utf-8', 
-    level=logging.INFO, 
+    level=logging.DEBUG, 
     format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p'
 )
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 flask_key = os.getenv('FLASK_KEY')
 if not flask_key:
     logger.critical("Missing FLASK_KEY in environment. Cannot start the app.")
-    sys.exit(1)  # Exit the process with error code 1
+    sys.exit(1)
 
 app = Flask(__name__)
 app.secret_key = flask_key

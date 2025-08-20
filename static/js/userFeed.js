@@ -127,7 +127,7 @@ async function loadItem(id) {
 async function loadCatalog(data) {
     const promises = data.map(item => loadItem(item.media_id))
     const catalog = await Promise.all(promises)
-    catalog.sort((a, b) => new Date(b.entry_updated) - new Date(a.entry_updated));
+    catalog.sort((a, b) => new Date(b.new_video_inserted) - new Date(a.new_video_inserted));
     return catalog
 }
 
