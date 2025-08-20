@@ -187,7 +187,7 @@ class TMDBClient:
 
         from library_manager import load_settings # >:-|
         SETTINGS = load_settings()
-        if SETTINGS.get('download_extra_images'):
+        if SETTINGS.get('enable_tmdb_requests') and SETTINGS.get('enable_tmdb_optional_images'):
 
             for network in data.get('networks', []): # Download Network Logo
                 self.download_image(network.get('logo_path'), 'network')
