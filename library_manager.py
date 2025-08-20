@@ -846,9 +846,9 @@ def norm_sub_data(subtitles: list[dict]) -> list[dict]:
         "nob": "nb", "bokmål": "nb", "bokmal": "nb", "norsk bokmål": "nb",
 
         # Special Cases
-        "traditional": "zh", "sdh": "en", "european": "en", "standard estonian": "et",
+        "traditional": "zh", "sdh": "en", "standard estonian": "et",
         "standard latvian": "lv", "standard malay": "ml", "simplified": "zh",
-        "forced": "en", "none": "unknown"
+        "none": "unknown"
     }
 
     LANGUAGE_MAP = {
@@ -944,7 +944,7 @@ def norm_sub_data(subtitles: list[dict]) -> list[dict]:
 
         label = clean_label(label)
         if len(label.split()) > 4:
-            label = 'en'  # if the string after split is longer than 4, it means that the .vtt is probably a video file name like so "28 Days Later 2002.vtt" which usually means it's default english
+            label = 'en'  # if the string after split is longer than 4, it most likely means that the .vtt's filename is the same as video name (example: "28 Days Later 2002.vtt") which usually means it's default english
 
         srclang = "unknown"
         # Try direct match in LANGUAGE_MAP (ISO codes)
@@ -953,7 +953,7 @@ def norm_sub_data(subtitles: list[dict]) -> list[dict]:
         # Try ALIAS_MAP (common name/alias to ISO code)
         elif label in ALIAS_MAP:
             srclang = ALIAS_MAP.get(label, 'unknown')
-        # Try split and match first word... example. "Portuguese Brazilian"
+        # Try split and match first word... example: "Portuguese Brazilian"
         elif label.split()[0] in ALIAS_MAP:
             srclang = ALIAS_MAP.get(label.split()[0], 'unknown')
             
@@ -983,7 +983,6 @@ def extract_subtitles(video_path: str) -> list[dict]:
         logger.error(f'ffmpeg binary not found.')
         return []
     
-    # Get subtitle streams info using ffprobe
     probe_cmd = [
         FFPROBE_PATH,
         '-v', 'error',
@@ -994,7 +993,6 @@ def extract_subtitles(video_path: str) -> list[dict]:
     ]
     result = subprocess.run(probe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
 
-    # Parse the ffprobe output and extract subtitle streams
     try:
         subtitles = json.loads(result.stdout).get("streams", [])
     except json.JSONDecodeError as e:
@@ -1005,22 +1003,22 @@ def extract_subtitles(video_path: str) -> list[dict]:
     
     output_folder = f'{os.path.dirname(video_path)}/{os.path.splitext(os.path.basename(video_path))[0]}' 
     output_folder_norm = os.path.normpath(output_folder)
-    os.makedirs(output_folder_norm, exist_ok=True)  # Ensure output folder exists
+    os.makedirs(output_folder_norm, exist_ok=True)
 
-    extracted_subs = []    
+    extracted_subs = []
+    #  expected input [{'index': 3, 'tags': {'language': 'eng', 'title': 'English [SDH]'}}, ]    <- first list entry migth start from random 'index': x 
     for adjusted_index, subs in enumerate(subtitles):
-        index = subs.get('index', 0) # Original Index
+        index = subs.get('index', 0)
         label = subs.get('tags', {}).get('title', 'unknown')
-        lang = subs.get('tags', {}).get('language', 'unknown')
-        # Create an output directory based on the video file name
-        output_path = os.path.join(output_folder_norm, f"{index}_{label}.vtt") if label else os.path.join(output_folder_norm, f"{index}_{lang}.vtt")
+        lang = subs.get('tags', {}).get('language', 'unknown') 
 
-        # ffmpeg command to extract the subtitles
+        output_path = os.path.join(output_folder_norm, f"{index}_{lang}.vtt")
+
         extract_cmd = [
             FFMPEG_PATH,
             '-i', video_path,
             F'-map', f'0:s:{adjusted_index}',     # Map subtitle stream by index
-            '-c:s', 'webvtt',           # Convert to VTT format
+            '-c:s', 'webvtt',           # Convert to html friendly VTT format
             '-y',                       # Overwrite if already exists
             output_path
         ]   
