@@ -49,10 +49,10 @@ def create_localdb():
         return     
     password = generate_password_hash(admin_password)
     key = secrets.token_hex(8)
-    insert_new_user(password, key)
+    insert_new_user(password, key, is_adult=True)
 
 
-def add_account(password_string: str):
+def add_account(password_string: str, is_admin=False, is_adult=True):
     if not password_string or not isinstance(password_string, str):
         print('user account creation failed: password must be a non-empty password_string')
         logger.error('user account creation failed: password must be a non-empty password_string')
@@ -90,7 +90,7 @@ def add_account(password_string: str):
         logger.error(f"user account creation failed: exception during generating {e}", exc_info=True)
         raise
     
-    insert_new_user(password, key)
+    insert_new_user(password, key, is_admin, is_adult)
 
 
 
@@ -523,6 +523,8 @@ class User(Base):
     
     password: Mapped[str] = mapped_column(nullable=False)
     key: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    is_adult: Mapped[bool] = mapped_column(nullable=True, default=True)
+    is_admin: Mapped[bool] = mapped_column(nullable=True, default=False)
 
     entry_created: Mapped[int] = mapped_column(nullable=True)
     entry_updated: Mapped[int] = mapped_column(nullable=True)
@@ -1232,10 +1234,14 @@ def delete_metadata_videos(missing_video_hashes: list):
 
 
 
-def insert_new_user(password: str, key: str):
+def insert_new_user(password: str, key: str, is_admin=False, is_adult=True):
     logger.info(f"Creating new user account...")
     if not (password and isinstance(password, str)) or not (key and isinstance(key, str)):
         logger.warning("user account creation failed: invalid password or key format.")
+        return
+    
+    if not isinstance(is_admin, bool) or not isinstance(is_adult, bool):
+        logger.warning("user account creation failed: is_admin or is_adult format.")
         return
     
     with Session() as session:
@@ -1246,6 +1252,8 @@ def insert_new_user(password: str, key: str):
         user = User(
             password=password,
             key=key,
+            is_adult=is_adult,
+            is_admin=is_admin,
             entry_created=entry_created,
             entry_updated=entry_created
         )
