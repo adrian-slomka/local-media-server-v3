@@ -1283,7 +1283,7 @@ def sync_libraries():
 
     # 2. Insert new TV shows and movies basic info (title, optional year, hash key) into the database.
     #    Return the updated set of existing hash keys including newly inserted entries.
-    logger.info('Inserting new items with basic info for further processing (e.g., fetching additional data from TMDb)...')
+    logger.info('Inserting movie/tv title(s)...')
 
     existing_entries: set[str] = set(DB.fetch_hash_MediaItem())
     insert_entry(existing_entries, catalog) 
@@ -1292,7 +1292,7 @@ def sync_libraries():
 
     # 3. Identify videos that are present locally but not yet recorded in the database.
     #    Return: 1) updated list of already existing videos in database with new videos hashes, 2) a tuple with the hash key and a list of videos data
-    logger.info('Identifying new local videos not yet recorded in the database...')
+    logger.info('Scanning for video files not yet in the database...')
 
     existing_videos = set(DB.fetch_hash_VideoMetadata())
     all_local_video_hashes, new_videos = identify_new_videos(existing_videos, catalog)
