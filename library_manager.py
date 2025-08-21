@@ -275,16 +275,14 @@ def extract_episode_number(filename):
 
 def extract_title(title: str):
     # title str example: Example.Media.2024.1080p.WEBRip.1400MB.DD5.1.x264-GalaxyRG
-    cleaned_title = re.sub(r'https?://\S+|www\.\S+', ' ', title, flags=re.IGNORECASE)
-
-    pattern = r'^(?P<title>.+?)\.*(\b\d{4}\b|\d{3,4}p)'
-    cleaned_title = title.replace("(", "").replace(")", "").replace(".", " ").replace('_', ' ')
+    cleaned_title = re.sub(r'https?:\S+|www\.\S+', ' ', title, flags=re.IGNORECASE)
+    cleaned_title = cleaned_title.replace("(", "").replace(")", "").replace(".", " ").replace('_', ' ').replace('-', ' ')
 
     # Junk tokens to strip
     junk_tokens = [
-        r'WEB[- ]?Rip', r'BluRay', r'HDTV', r'DVDRip', r'CAM', r'HDRip',
+        r'WEB[- ]?Rip', r'BluRay', r'HDTV', r'HDTS', r'DVDRip', r'CAM', r'HDRip',
         r'x264', r'x265', r'XviD', r'HEVC',
-        r'\bDD5\.1\b', r'AAC', r'MP3', r'FLAC',
+        r'\bDD5\.1\b', r'AAC', r'MP3', r'FLAC', r'RGB'
         r'\b\w{2,}-RG\b',   # e.g. GalaxyRG, YTS, RARBG
         r'\b\d{3,4}MB\b',   # e.g. 700MB, 1400MB
     ]
@@ -295,6 +293,7 @@ def extract_title(title: str):
 
     # Collapse multiple spaces into one
     cleaned_title = re.sub(r'\s+', ' ', cleaned_title).strip()  # Replaces multiple spaces with a single space
+    pattern = r'^(?P<title>.+?)\.*(\b\d{4}\b|\d{3,4}p)'
     cleaned_title = re.match(pattern, cleaned_title)
     if cleaned_title:
         return cleaned_title.group('title').strip()
