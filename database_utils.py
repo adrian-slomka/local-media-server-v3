@@ -779,7 +779,7 @@ def insert_actors(session, actors: list[dict]):
     return existing_actors
 
 
-def append_genres(item: MediaItem, genre_dict: dict[str, Genre], genre_names: list[str]):
+def append_genres(session, item: MediaItem, genre_dict: dict[str, Genre], genre_names: list[str]):
     """
     Append genres to the media item if not already associated.
 
@@ -791,17 +791,23 @@ def append_genres(item: MediaItem, genre_dict: dict[str, Genre], genre_names: li
     5) SQLAlchemy will handle inserting the necessary association rows in the join table when the session is flushed or committed.
 
     """
+    item.genres.clear()
+    session.flush()
+
     for name in genre_names:
         genre = genre_dict.get(name)
         if genre and genre not in item.genres:
             item.genres.append(genre)
 
 
-def append_content_ratings(item: MediaItem, ratings_dict: dict[tuple[str, str], ContentRating], ratings: list[dict]):
+def append_content_ratings(session, item: MediaItem, ratings_dict: dict[tuple[str, str], ContentRating], ratings: list[dict]):
     """
     Append content ratings to the media item if not already associated.
     """
     existing_keys = {(cr.rating, cr.country) for cr in item.content_ratings}  # Avoid duplicates
+
+    item.content_ratings.clear()
+    session.flush()
 
     for rating_data in ratings:
         rating_key = (rating_data.get('rating'), rating_data.get('iso_3166_1'))
@@ -812,8 +818,11 @@ def append_content_ratings(item: MediaItem, ratings_dict: dict[tuple[str, str], 
             existing_keys.add(rating_key)
 
 
-def append_production_companies(item: MediaItem, company_dict: dict[str, ProductionCompany], companies: list[dict]):
+def append_production_companies(session, item: MediaItem, company_dict: dict[str, ProductionCompany], companies: list[dict]):
     existing_names = {c.name for c in item.production_companies}
+
+    item.production_companies.clear()
+    session.flush()
 
     for company in companies:
         name = company.get('name')
@@ -826,8 +835,11 @@ def append_production_companies(item: MediaItem, company_dict: dict[str, Product
             existing_names.add(name)
 
 
-def append_networks(item: MediaItem, network_dict: dict[str, Network], networks: list[dict]):
+def append_networks(session, item: MediaItem, network_dict: dict[str, Network], networks: list[dict]):
     existing_names = {n.name for n in item.networks}
+
+    item.networks.clear()
+    session.flush()
 
     for network_data in networks:
         name = network_data.get('name')
@@ -842,6 +854,9 @@ def append_networks(item: MediaItem, network_dict: dict[str, Network], networks:
 
 def append_videos(session, item: MediaItem, videos: list[dict]):
     existing_videos = {video.key: video for video in item.videos}
+
+    item.videos.clear()
+    session.flush()
 
     for video_data in videos:
         key = video_data.get('key')
@@ -877,6 +892,9 @@ def append_videos(session, item: MediaItem, videos: list[dict]):
 
 def append_logos(session, item: MediaItem, logos: list):
     existing_logos = {logo.file_path: logo for logo in item.logos}
+
+    item.logos.clear()
+    session.flush()
 
     for logo_data in logos:
         file_path = logo_data.get('file_path')
@@ -962,6 +980,7 @@ def append_tv_season(session, media_item: MediaItem, season_data: dict) -> TvSea
     if not media_item.tv_details:
         media_item.tv_details = TvDetails(media_item=media_item)
         session.add(media_item.tv_details)
+
 
     existing = next((s for s in media_item.tv_details.seasons if s.season_number == season_number), None)
     if existing:
@@ -1057,6 +1076,9 @@ def append_tv_episode(session, season: TvSeason, episode_data: dict):
 def append_cast(session, item: MediaItem, existing_characters: dict[str, Character], existing_actors: dict[str, Actor], cast_data: list[dict]):
     # Map existing cast_data entries on this media item
     existing_cast = {(mc.actor_id, mc.character_id): mc for mc in item.media_cast}
+
+    item.media_cast.clear()
+    session.flush()
 
     for entry in cast_data:
         actor_tmdb_id = entry.get('id')
@@ -1197,10 +1219,10 @@ def update_id(id, data: dict):
 
         upsert_item(item, data)
 
-        append_genres(item, existing_genres, data.get('genres', []))
-        append_content_ratings(item, existing_content_ratings, data.get('content_ratings', []))
-        append_production_companies(item, existing_production_companies, data.get('production_companies', []))
-        append_networks(item, existing_networks, data.get('networks', []))
+        append_genres(session, item, existing_genres, data.get('genres', []))
+        append_content_ratings(session, item, existing_content_ratings, data.get('content_ratings', []))
+        append_production_companies(session, item, existing_production_companies, data.get('production_companies', []))
+        append_networks(session, item, existing_networks, data.get('networks', []))
         append_videos(session, item, data.get('videos', []))
         append_logos(session, item, data.get('logos', []))
         append_cast(session, item, existing_characters, existing_actors, data.get('cast', []))

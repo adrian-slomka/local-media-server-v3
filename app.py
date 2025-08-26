@@ -7,6 +7,7 @@ import threading
 import re
 import jwt
 
+from uuid import uuid4
 from flask import Flask, request, render_template, send_from_directory, jsonify, send_file, Response, abort, redirect, url_for, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -18,9 +19,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # dir modules
-from database_utils import DB, create_localdb
+from database_utils import DB, create_localdb, update_id
 from library_manager import sync_libraries, create_settings, load_settings
-
+from tmdb_client import TMDBClient
 
 
 logging.basicConfig(
@@ -132,7 +133,14 @@ def auth_token():
     return jsonify({'access_token': token, 'expires_in': 60})
 
 
-
+jobs = {}  # temp in-memory job store
+@app.route('/status/v1/<job_id>', methods=['GET'])
+@token_required
+def check_job_status(job_id):
+    job = jobs.get(job_id)
+    if not job:
+        return jsonify({'error': 'job not found'}), 404
+    return jsonify(job)
 
 
 
@@ -1042,6 +1050,60 @@ def post_delete_item_id():
         return jsonify({'error': 'internal error.'}), 400
     
     return jsonify({"message": "item deleted."}), 200
+
+
+@app.route('/content/v1/r', methods=['POST'])
+@token_required
+@admin_required
+def post_request_data():
+    key = session.get('key')
+    data = request.get_json()
+
+    if not key or not isinstance(key, str):
+        logger.warning(f'endpoint "/content/v1/r" session KEY not found. ({key})')
+        return jsonify({'error': 'session KEY not found.'}), 400    
+    
+    if not data and not isinstance(data, dict):
+        logger.warning(f'endpoint "/content/v1/r" recieved invalid data. ({data})')
+        return jsonify({'error': 'invalid or missing JSON data'}), 400
+    
+    if not isinstance(data.get('media_id'), int):
+        logger.warning(f'endpoint "/content/v1/r" recieved invalid id. ({data})')
+        return jsonify({'error': 'invalid id.'}), 400
+
+    if data.get('category') and data.get('category') not in ['tv', 'movie']:
+        logger.warning(f'endpoint "/content/v1/r" recieved invalid category. ({data})')
+        return jsonify({'error': 'invalid category.'}), 400
+
+
+
+    media_id = data.get('media_id')
+    category = data.get('category')
+    title = data.get('title')
+    year = data.get('year')
+
+    job_id = str(uuid4())
+    jobs[job_id] = {'status': 'pending'}
+
+
+    logger.info(f'User attempting to fetch additional data from TMDB for item (ID: {media_id})... new request data: {data}')
+    def fetch_tmdb_job():
+        try:
+            tmdb_data = TMDBClient().request_tmdb_data(title=title, category=category, year=year)
+            if tmdb_data:
+                update_id(media_id, tmdb_data)
+            jobs[job_id]['status'] = 'done'
+        except Exception as e:
+            jobs[job_id]['status'] = 'error'
+            jobs[job_id]['error'] = str(e)
+            logger.error(f'failed to request / update -> {e}', exc_info=True)
+
+
+    threading.Thread(target=fetch_tmdb_job).start()
+
+    return jsonify({'job_id': job_id, 'status': 'started'}), 202
+
+
 
 
 # API SERVE VIDEO Endpoints
