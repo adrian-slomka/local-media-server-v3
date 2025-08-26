@@ -20,7 +20,7 @@ if __name__ == "__main__":
             confirmation = str(input('Confirm the password: '))
 
             if password == confirmation:
-                # add_account(password, is_admin, is_adult)
+                add_account(password, is_admin, is_adult)
                 print('New user account has been created successfully.')
                 break
             else:
