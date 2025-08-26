@@ -637,6 +637,7 @@ def upsert_item(item: MediaItem, data: dict):
         return
 
     mapping = {
+        'media_type': 'media_type',
         'tmdb_id': 'tmdb_id',
         'imdb_id': 'imdb_id',
         'original_title': 'original_title',
@@ -1073,40 +1074,44 @@ def append_tv_episode(session, season: TvSeason, episode_data: dict):
     return new_episode
 
 
-def append_cast(session, item: MediaItem, existing_characters: dict[str, Character], existing_actors: dict[str, Actor], cast_data: list[dict]):
-    # Map existing cast_data entries on this media item
-    existing_cast = {(mc.actor_id, mc.character_id): mc for mc in item.media_cast}
-
-    item.media_cast.clear()
-    session.flush()
+def append_cast(session, item: MediaItem, existing_characters: dict[str, Character], existing_actors: dict[str, Actor], cast_data: list[dict], clear_existing: bool = True):
+    if clear_existing:
+        for mc in list(item.media_cast):
+            session.delete(mc)
+        session.flush()
+        existing_cast = {}
+    else:
+        # Map existing cast_data entries on this media item
+        existing_cast = {(mc.actor_id, mc.character_id): mc for mc in item.media_cast}
 
     for entry in cast_data:
         actor_tmdb_id = entry.get('id')
-        character_name = entry.get('character') 
+        character_name = entry.get('character')
         episode_count = entry.get('episode_count')
 
-        # First check if character_name is positive, then check if it's an empty " ", if it is then relace it with "NO CHARACTER"
-        # No character data could mean the actor might've been a background char or special case, so he still needs to be appended to item.cast but with no character
+        # Normalize character name
         if character_name:
-            character_name = str(character_name or '').strip() # safely convert None to '' and strip spaces
-        if not character_name: # if empty after stripping
+            character_name = str(character_name or '').strip()
+        if not character_name:
             character_name = 'NO CHARACTER'
 
         actor_obj = existing_actors.get(actor_tmdb_id)
         character_obj = existing_characters.get(character_name)
-        if not actor_obj:
-            logger.warning(f'error while apending actor ({actor_obj}) to the item in session.')
+
+        if not actor_obj or not character_obj:
+            logger.warning(f"skipping invalid actor/character ({actor_obj}/{character_obj})")
             continue
 
         key = (actor_obj.id, character_obj.id)
 
         if key in existing_cast:
+            # Update existing cast entry if needed
             mc = existing_cast[key]
             if mc.episode_count != episode_count:
                 mc.episode_count = episode_count
                 session.add(mc)
-
         else:
+            # Insert new cast entry
             new_cast = MediaCast(
                 media_item=item,
                 actor_id=actor_obj.id,
