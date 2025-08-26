@@ -29,8 +29,10 @@ function searchFunction() {
 
                             poster.innerHTML = `
                                 <a href="${result.id}" class="poster__link">
-                                    <img src="${posterPath}" loading="lazy" alt="${title}" onerror="this.onerror=null; this.src='/static/images/default_poster.jpg'; this.nextElementSibling?.classList.remove('hidden');">
-                                    <div class="poster-fallback-title hidden">${title}</div>
+                                    <img src="${posterPath}" loading="lazy" alt="${title}" 
+                                        onload="if (this.src.includes('default_poster.jpg')) this.nextElementSibling?.classList.remove('hidden');" 
+                                        onerror="this.onerror=null; this.src='/static/images/default_poster.jpg'; this.nextElementSibling?.classList.remove('hidden');">
+                                    <div class="poster-fallback-title-search hidden">${title}</div>
                                 </a>
                             `;
 
