@@ -4,7 +4,7 @@ function renderCatalog(data, element) {
     const container = document.getElementById(element);
     container.innerHTML = ''; 
     data.forEach(item => {
-        const title = item.original_name || item.title;
+        const title = item.original_name || item.title || 'Untitled';
         const posterPath = item.poster_path
             ? `/static/images/posters/${item.poster_path.replace(/^\//, '')}`
             : '/static/images/default_poster.jpg';
@@ -12,7 +12,6 @@ function renderCatalog(data, element) {
         const poster = document.createElement('div');
         poster.className = 'poster';
         poster.id = item.id;
-        poster.setAttribute('data-p', '000');
         poster.setAttribute('title', title);
 
         poster.innerHTML = `
