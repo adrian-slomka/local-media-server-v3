@@ -49,7 +49,7 @@ def create_localdb():
         return     
     password = generate_password_hash(admin_password)
     key = secrets.token_hex(8)
-    insert_new_user(password, key, is_adult=True)
+    insert_new_user(password, key, is_admin=True, is_adult=True)
 
 
 def add_account(password_string: str, is_admin=False, is_adult=True):
@@ -98,29 +98,29 @@ def add_account(password_string: str, is_admin=False, is_adult=True):
 media_genres = Table(
     'media_genres',
     Base.metadata,
-    Column('media_id', ForeignKey('media_items.id'), primary_key=True, index=True),
-    Column('genre_id', ForeignKey('genres.id'), primary_key=True, index=True)
+    Column('media_id', ForeignKey('media_items.id', ondelete="CASCADE"), primary_key=True, index=True),
+    Column('genre_id', ForeignKey('genres.id', ondelete="CASCADE"), primary_key=True, index=True)
 )
 
 media_content_ratings = Table(
     'media_content_ratings',
     Base.metadata,
-    Column('media_id', ForeignKey('media_items.id'), primary_key=True, index=True),
-    Column('content_rating_id', ForeignKey('content_ratings.id'), primary_key=True, index=True)
+    Column('media_id', ForeignKey('media_items.id', ondelete="CASCADE"), primary_key=True, index=True),
+    Column('content_rating_id', ForeignKey('content_ratings.id', ondelete="CASCADE"), primary_key=True, index=True)
 )
 
 media_production_companies = Table(
     'media_production_companies',
     Base.metadata,
-    Column('media_id', ForeignKey('media_items.id'), primary_key=True, index=True),
-    Column('production_company_id', ForeignKey('production_companies.id'), primary_key=True, index=True)
+    Column('media_id', ForeignKey('media_items.id', ondelete="CASCADE"), primary_key=True, index=True),
+    Column('production_company_id', ForeignKey('production_companies.id', ondelete="CASCADE"), primary_key=True, index=True)
 )
 
 media_networks = Table(
     'media_networks',
     Base.metadata,
-    Column('media_id', ForeignKey('media_items.id'), primary_key=True),
-    Column('network_id', ForeignKey('networks.id'), primary_key=True)
+    Column('media_id', ForeignKey('media_items.id', ondelete="CASCADE"), primary_key=True),
+    Column('network_id', ForeignKey('networks.id', ondelete="CASCADE"), primary_key=True)
 )
 
 
@@ -160,14 +160,14 @@ class MediaItem(Base):
     content_ratings: Mapped[list[ContentRating]] = relationship(secondary=media_content_ratings, back_populates='media_item')
     production_companies: Mapped[list[ProductionCompany]] = relationship(secondary=media_production_companies, back_populates='media_item')
     networks: Mapped[list[Network]] = relationship(secondary=media_networks, back_populates='media_item')
-    media_cast: Mapped[list[MediaCast]] = relationship(back_populates='media_item')
+    media_cast: Mapped[list[MediaCast]] = relationship(back_populates='media_item', cascade='all, delete-orphan')
     # One to Many
-    videos: Mapped[list[Video]] = relationship(back_populates='media_item')
-    logos: Mapped[list[Logo]] = relationship(back_populates='media_item', foreign_keys='Logo.media_id')
-    media_metadata: Mapped[list[VideoMetadata]] = relationship(back_populates='media_item')
+    videos: Mapped[list[Video]] = relationship(back_populates='media_item', cascade='all, delete-orphan')
+    logos: Mapped[list[Logo]] = relationship(back_populates='media_item', foreign_keys='Logo.media_id', cascade='all, delete-orphan')
+    media_metadata: Mapped[list[VideoMetadata]] = relationship(back_populates='media_item', cascade='all, delete-orphan')
     # One to One
-    movie_details: Mapped[MovieDetails] = relationship(back_populates='media_item')
-    tv_details: Mapped[TvDetails] = relationship(back_populates='media_item')
+    movie_details: Mapped[MovieDetails] = relationship(back_populates='media_item', cascade='all, delete-orphan')
+    tv_details: Mapped[TvDetails] = relationship(back_populates='media_item', cascade='all, delete-orphan')
 
 
     # # includes relationships
@@ -189,7 +189,7 @@ class MovieDetails(Base):
     __tablename__ = 'media_details_movie'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), unique=True, nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), unique=True, nullable=False, index=True)
     
     budget: Mapped[int] = mapped_column(nullable=True)
     revenue: Mapped[int] = mapped_column(nullable=True)
@@ -209,7 +209,7 @@ class TvDetails(Base):
     __tablename__ = 'media_details_tv'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), unique=True, nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), unique=True, nullable=False, index=True)
 
     first_air_date: Mapped[str] = mapped_column(nullable=True)
     last_air_date: Mapped[str] = mapped_column(nullable=True)
@@ -231,8 +231,8 @@ class TvSeason(Base):
     __tablename__ = 'media_details_tv_seasons'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
-    tv_id: Mapped[int] = mapped_column(ForeignKey('media_details_tv.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
+    tv_id: Mapped[int] = mapped_column(ForeignKey('media_details_tv.id', ondelete="CASCADE"), nullable=False, index=True)
     
     tmdb_season_id: Mapped[int] = mapped_column(nullable=True)
     season_number: Mapped[int] = mapped_column(nullable=True)
@@ -257,8 +257,8 @@ class TvEpisode(Base):
     __tablename__ = 'media_details_tv_seasons_episodes'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
-    season_id: Mapped[int] = mapped_column(ForeignKey('media_details_tv_seasons.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey('media_details_tv_seasons.id', ondelete="CASCADE"), nullable=False, index=True)
 
     tmdb_episode_id: Mapped[int] = mapped_column(nullable=True)
     air_date: Mapped[str] = mapped_column(nullable=True)
@@ -355,7 +355,7 @@ class Video(Base):
     __tablename__ = 'media_videos'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
 
     lang: Mapped[str] = mapped_column(nullable=True)
     title: Mapped[str] = mapped_column(nullable=True)
@@ -379,7 +379,7 @@ class Logo(Base):
     __tablename__ = 'media_logos'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
     aspect_ratio: Mapped[float] = mapped_column(nullable=True)
     height: Mapped[int] = mapped_column(nullable=True)
     width: Mapped[int] = mapped_column(nullable=True)
@@ -400,7 +400,7 @@ class VideoMetadata(Base):
     __tablename__ = 'media_metadata'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
     season_number: Mapped[int] = mapped_column(nullable=True)
     episode_number: Mapped[int] = mapped_column(nullable=True)
 
@@ -440,7 +440,7 @@ class Subtitle(Base):
     __tablename__ = 'media_subtitles'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
     video_id: Mapped[int] = mapped_column(ForeignKey('media_metadata.id', ondelete='CASCADE'), nullable=False, index=True)
     lang: Mapped[str] = mapped_column(nullable=True)
     label: Mapped[str] = mapped_column(nullable=True)
@@ -462,9 +462,9 @@ class Subtitle(Base):
 class MediaCast(Base):
     __tablename__ = 'media_cast'
 
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), primary_key=True)
-    actor_id: Mapped[int] = mapped_column(ForeignKey('actors.id'), primary_key=True)
-    character_id: Mapped[int] = mapped_column(ForeignKey('characters.id'), primary_key=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), primary_key=True)
+    actor_id: Mapped[int] = mapped_column(ForeignKey('actors.id', ondelete="CASCADE"), primary_key=True)
+    character_id: Mapped[int] = mapped_column(ForeignKey('characters.id', ondelete="CASCADE"), primary_key=True)
     episode_count: Mapped[int] = mapped_column(nullable=True)
     entry_updated: Mapped[int] = mapped_column(nullable=True)
 
@@ -545,7 +545,7 @@ class UserProfile(Base):
     __tablename__ = 'user_profile'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_key: Mapped[str] = mapped_column(ForeignKey('users.key'), nullable=False, index=True)
+    user_key: Mapped[str] = mapped_column(ForeignKey('users.key', ondelete="CASCADE"), nullable=False, index=True)
 
     profile_name: Mapped[str] = mapped_column(nullable=True)
     profile_picture: Mapped[str] = mapped_column(nullable=True)
@@ -566,9 +566,9 @@ class UserLibrary(Base):
     __tablename__ = 'user_library'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_key: Mapped[str] = mapped_column(ForeignKey('users.key'), nullable=False, index=True)
+    user_key: Mapped[str] = mapped_column(ForeignKey('users.key', ondelete="CASCADE"), nullable=False, index=True)
 
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
 
     rated: Mapped[int] = mapped_column(nullable=True)
     watchlisted: Mapped[int] = mapped_column(nullable=True)
@@ -589,10 +589,10 @@ class UserPlayback(Base):
     __tablename__ = 'user_playback'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_key: Mapped[str] = mapped_column(ForeignKey('users.key'), nullable=False, index=True)
+    user_key: Mapped[str] = mapped_column(ForeignKey('users.key', ondelete="CASCADE"), nullable=False, index=True)
 
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id'), nullable=False, index=True)
-    video_id: Mapped[int] = mapped_column(ForeignKey('media_metadata.id'), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
+    video_id: Mapped[int] = mapped_column(ForeignKey('media_metadata.id', ondelete="CASCADE"), nullable=False, index=True)
 
     watched: Mapped[bool] = mapped_column(Boolean, nullable=True)
     paused_at: Mapped[int] = mapped_column(nullable=True)
@@ -1497,7 +1497,7 @@ class DB():
     def fetch_users():
         with Session() as session:
             users = session.query(User).all()
-        return [{'hash': user.password, 'key': user.key} for user in users]
+        return [{'hash': user.password, 'key': user.key, 'is_admin': user.is_admin, 'is_adult': user.is_adult} for user in users]
 
 
     @staticmethod
@@ -1599,6 +1599,53 @@ class DB():
                 session.add(library_item)
 
             session.commit()
+
+
+    @staticmethod
+    def delete_media_item(id: int):
+        """
+        Delete row from main table 'media_items' with specified Id.
+        """
+
+        with Session() as session:
+            item = session.get(MediaItem, id)
+
+            if item:
+                session.delete(item)
+                session.commit()            
+
+
+    @staticmethod
+    def delete_video(id: int):
+        """
+        Delete row from metadata table 'media_metadata' with specified Id.
+        """
+
+        with Session() as session:
+            item = session.get(VideoMetadata, id)
+
+            if item:
+                session.delete(item)
+                session.commit()   
+
+
+    @staticmethod
+    def delete_user(key: str):
+        """
+        Delete row from main table 'media_items' with specified Id.
+        """
+
+        with Session() as session:
+            item = session.get(User, key)
+
+            if item:
+                session.delete(item)
+                session.commit()    
+
+
+
+
+
 
 
 if __name__ == "__main__":

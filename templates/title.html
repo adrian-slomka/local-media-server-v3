@@ -32,8 +32,8 @@
                 </a>
                 <div class="interaction-container">
                     <div class="options-menu --hidden" id="options-menu" role="menu">
-                        <button class="i-option" role="menuitem">placeholder#1</button>
-                        <button class="i-option" role="menuitem">placeholder#2</button>
+                        <button id="request-btn" class="i-option" role="menuitem" title="Request additional data for this item from TMDB site">Request data</button>
+                        <button id="delete-btn" class="i-option" role="menuitem" title="Remove page">Remove this page</button>
                     </div>                    
                     <div class="__watchlist i-icon" id="watchlist"> <!-- i-icon-active -->
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -148,6 +148,8 @@
 <script type="module" src="{{ url_for('static', filename='js/api/_api.js') }}"></script>    
 <script type="module" src="{{ url_for('static', filename='js/pages/titlePage.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='js/userLibrary.js') }}"></script>
+
+<script type="module" src="{{ url_for('static', filename='js/components/optionsButtons.js') }}"></script>
 
 <script src="{{ url_for('static', filename='js/components/stickyHeader.js') }}"></script>
 <script src="{{ url_for('static', filename='js/components/optionsMenu.js') }}"></script>

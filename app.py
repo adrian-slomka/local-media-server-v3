@@ -95,10 +95,10 @@ def token_required(f):
     return decorated_function
 
 
-def role_required(f):
+def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not session.get('role') == 'chief':
+        if not session.get('is_admin'):
             return jsonify({'error': 'unauthorized'}), 401
 
         return f(*args, **kwargs)
@@ -158,7 +158,9 @@ def login():
                 session.permanent = True
                 session['auth'] = True
                 session['key'] = user['key']
-                
+                session['is_admin'] = user['is_admin']
+                session['is_adult'] = user['is_adult']
+
                 return redirect(url_for('index'))
         error = "Invalid key"
 
@@ -1014,7 +1016,32 @@ def user_library_all():
     return jsonify({'library': lib, 'videos': videos})
 
 
+@app.route('/content/v1/d', methods=['POST'])
+@token_required
+@admin_required
+def post_delete_item_id():
+    key = session.get('key')
+    if not key or not isinstance(key, str):
+        logger.warning(f'endpoint "/content/v1/d" session KEY not found. ({key})')
+        return jsonify({'error': 'session KEY not found.'}), 400    
 
+    data = request.get_json()
+    if not data:
+        logger.warning(f'endpoint "/content/v1/d" recieved invalid data. ({data})')
+        return jsonify({'error': 'missing JSON data'}), 400
+    
+    media_id = data.get('media_id')
+    if not isinstance(media_id, int):
+        logger.warning(f'endpoint "/content/v1/d" recieved invalid data. ({data})')
+        return jsonify({'error': 'invalid data.'}), 400
+
+    try:
+        DB.delete_media_item(media_id)
+    except Exception as e:
+        logger.error(f'exception while trying to delete item. (item Id: {media_id}) error -> {e}')
+        return jsonify({'error': 'internal error.'}), 400
+    
+    return jsonify({"message": "item deleted."}), 200
 
 
 # API SERVE VIDEO Endpoints
