@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="{{ url_for('static', filename='js/api/_token.js') }}"></script>
+    <title>index :: all</title>
+
+    <style>
+        .alphabet { margin-bottom: 20px; }
+        .alphabet button { color: white; margin: 0 5px 5px 0; padding: 5px 10px; cursor: pointer; background-color: transparent; border: none; transition: all 0.2s;}
+        .alphabet button.active { font-weight: bold; background-color: #4b42339f; color: #c0ad9c; border-radius: 5px;}
+        .alphabet button:hover {color: #c0ad9c;}
+        ul { list-style: none; padding-left: 0; }
+        li { margin: 5px 0;}
+        li a {color: white;}
+        li a:hover {color: #c0ad9c !important;}
+    </style>
+</head>
+<body class="no-bg-gradient">
+
+    <div class="app-layout">
+        <div class="content-wrapper" style="padding-top: 3rem; padding-bottom: 3rem;">
+            <div>
+                <a href="/" class="media-back" style="font-size: 1.5rem;">
+                    <p>Go Back</p>
+                </a>
+            </div>
+        </div> 
+        
+        <div class="content-wrapper" style="min-height: 100vh;">
+            <h1>Index</h1>
+            <br>
+
+            <div class="alphabet" id="alphabet"></div>
+            <ul id="title-list" style="padding-top: 2rem; white-space: normal; word-break: normal; overflow-wrap: break-word;"></ul>
+        </div>
+
+        <div class="app-layout_footer --footer-bg-black">
+            <div class="footer">
+                <div class="footer-line"></div> 
+                <br>
+                <p style="font-size: 2rem;">-</p>
+            </div>            
+        </div> 
+    </div>
+
+
+<script type="module" src="{{ url_for('static', filename='js/api/_api.js') }}"></script>    
+<script type="module" src="{{ url_for('static', filename='js/pages/browse.js') }}"></script>    
+</body>
+</html>
+

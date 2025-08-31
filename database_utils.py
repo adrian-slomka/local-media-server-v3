@@ -1305,6 +1305,12 @@ def insert_new_user(password: str, key: str, is_admin=False, is_adult=True):
 
 class DB():
     @staticmethod
+    def fetch_catalog_index():
+        with Session() as session:
+            items = session.query(MediaItem.id, MediaItem.title, MediaItem.media_type).all()
+        return items
+    
+    @staticmethod
     def fetch_catalog(order_by='entry_updated', order_=desc, limit=20, media_type=None):
         """
         Fetch a list of MediaItem entries from the database, ordered and limited.

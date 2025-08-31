@@ -1,13 +1,12 @@
 import logging
 import os
-import secrets
 import sys
 import warnings
 import threading
 import re
 import jwt
+import socket
 
-from operator import itemgetter, attrgetter
 from uuid import uuid4
 from flask import Flask, request, render_template, send_from_directory, jsonify, send_file, Response, abort, redirect, url_for, session
 from flask_limiter import Limiter
@@ -189,6 +188,10 @@ def logout():
 def index():
     return render_template('index.html')
 
+@app.route('/browse')
+@login_required
+def browse():
+    return render_template('browse.html')
 
 @app.route('/<int:item_id>')
 @login_required
@@ -226,6 +229,28 @@ def ratelimit_handler(e):
 ## API CONTENT Endpoints
 ## API CONTENT Endpoints
 ## API CONTENT Endpoints
+@app.route('/content/v1/index')
+def get_index(): 
+    try:
+        index = DB.fetch_catalog_index()
+    except Exception as e:
+        logger.error(f'failed to fetch index, exception {e}.', exc_info=True)
+        return jsonify({'error': 'internal error.'}), 400
+
+    library = dict()
+    for id, title, category in index:
+        letter = title[0]
+
+        if letter not in library:
+            library[letter] = [{'id': id, 'title': title, 'category':category}]
+        else:
+            library[letter].append({'id': id, 'title': title, 'category':category})
+
+    library = dict(sorted(library.items()))
+    for letter in library:
+        library[letter].sort(key=lambda x: x['title'])
+    return jsonify(library)
+
 
 @app.route('/content/v1/catalog')
 @token_required
@@ -1237,8 +1262,8 @@ if __name__ == "__main__":
     sync_thread = threading.Thread(target=sync_libraries)
     sync_thread.start()
 
-    logger.info('[ APP ] application is running...')
-    print('\n[ APP ] application is running...')
+    logger.info(f'[ APP ] running... at localhost:8000, 127.0.0.1:8000, {socket.gethostbyname(socket.gethostname())}:8000')
+    print(f'\n[ APP ] running... at localhost:8000, 127.0.0.1:8000, {socket.gethostbyname(socket.gethostname())}:8000')
     serve(
         app, 
         ident=None, 
