@@ -7,6 +7,7 @@ import threading
 import re
 import jwt
 
+from operator import itemgetter, attrgetter
 from uuid import uuid4
 from flask import Flask, request, render_template, send_from_directory, jsonify, send_file, Response, abort, redirect, url_for, session
 from flask_limiter import Limiter
@@ -242,9 +243,10 @@ def get_catalog():
              'original_title': item.original_title,
              'release_date': item.release_date,
              'poster_path': item.poster_path,
-             'entry_updated': item.entry_updated
+             'entry_updated': item.entry_updated,
+             'newest_video': item.new_video_inserted
              } for item in catalog]
-    
+    data = sorted(data, key=lambda k:k['newest_video'], reverse=True)
     return jsonify(data)
 
 
@@ -264,9 +266,10 @@ def get_catalog_tv():
              'original_title': item.original_title,
              'release_date': item.release_date,
              'poster_path': item.poster_path,
-             'entry_updated': item.entry_updated
+             'entry_updated': item.entry_updated,
+             'newest_video': item.new_video_inserted
              } for item in catalog]
-    
+    data = sorted(data, key=lambda k:k['newest_video'], reverse=True)
     return jsonify(data)
 
 
@@ -286,9 +289,10 @@ def get_catalog_movies():
              'original_title': item.original_title,
              'release_date': item.release_date,
              'poster_path': item.poster_path,
-             'entry_updated': item.entry_updated
+             'entry_updated': item.entry_updated,
+             'newest_video': item.new_video_inserted
              } for item in catalog]
-    
+    data = sorted(data, key=lambda k:k['newest_video'], reverse=True)
     return jsonify(data)
 
 
@@ -297,6 +301,8 @@ def get_catalog_movies():
 def get_item(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
+    
+
     
     try:
         item = DB.fetch_id(item_id)
@@ -383,6 +389,8 @@ def get_item_genres(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
 
+
+
     try:
         genres = DB.fetch_genres(item_id)
     except Exception as e:
@@ -401,6 +409,8 @@ def get_item_ratings(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
 
+
+
     try:
         ratings = DB.fetch_ratings(item_id)
     except Exception as e:
@@ -418,6 +428,8 @@ def get_item_ratings(item_id):
 def get_item_cast(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
+
+
 
     try:
         cast_list = DB.fetch_cast(item_id)
@@ -464,6 +476,8 @@ def get_item_trailers(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
 
+
+
     try:
         trailers = DB.fetch_trailers(item_id)
     except Exception as e:
@@ -491,6 +505,8 @@ def get_item_networks(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
 
+
+
     try:
         networks = DB.fetch_networks(item_id)
     except Exception as e:
@@ -512,6 +528,8 @@ def get_item_networks(item_id):
 def get_item_seasons(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
+
+
 
     try:
         seasons = DB.fetch_season(item_id)
@@ -557,6 +575,8 @@ def get_item_episodes(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
 
+
+
     try:
         episodes = DB.fetch_episodes(item_id)
     except Exception as e:
@@ -588,6 +608,8 @@ def get_item_episodes(item_id):
 def get_videos(item_id):
     if not item_id or not isinstance(item_id, int) or item_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400
+
+
 
     try:
         videos = DB.fetch_videos(item_id)
@@ -663,6 +685,7 @@ def get_video(video_id):
         return jsonify({'error': 'invalid data.'}), 400  
       
 
+
     try:  
         video = DB.fetch_video(video_id)
     except Exception as e:
@@ -735,6 +758,7 @@ def get_video_subtitles(video_id):
     if not video_id or not isinstance(video_id, int) or video_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400  
 
+
     try:
         subtitles = DB.fetch_subtitles(video_id)
     except Exception as e:
@@ -757,6 +781,7 @@ def get_video_subtitles(video_id):
 @token_required
 def search_results():
     query = request.args.get('query', '')
+    
     if not query:
          return jsonify({'error': 'invalid query.'}), 400
 
@@ -768,8 +793,9 @@ def search_results():
         logger.warning(f'invalid search term. ({query})')
         return jsonify({"error": "invalid search term"}), 400
     
-    safer_string = query.replace('%', r'\%').replace('_', r'\_')
 
+
+    safer_string = query.replace('%', r'\%').replace('_', r'\_')
     if safer_string:
         try:
             results = DB.search(safer_string)
@@ -802,6 +828,7 @@ def search_results():
 @token_required
 def get_user_profile():
     key = session.get('key')
+
     if not key or not isinstance(key, str):
         return jsonify({'error': 'invalid session key'}), 400
     
@@ -825,12 +852,14 @@ def get_user_profile():
 @token_required
 def get_user_video_playback():
     key = session.get('key')
+    video_id = request.args.get('v', type=int)
+
     if not key or not isinstance(key, str):
         return jsonify({'error': 'invalid session key'}), 400
 
-    video_id = request.args.get('v', type=int)
     if not video_id or not isinstance(video_id, int) or video_id <= 0:
         return jsonify({'error': 'invalid data.'}), 400  
+
 
 
     try:
@@ -855,21 +884,22 @@ def get_user_video_playback():
 @token_required
 def post_user_watchtime():
     key = session.get('key')
-    if not key or not isinstance(key, str):
-        logger.warning(f'endpoint "/accounts/v1/w" session KEY not found. ({key})')
-        return jsonify({'error': 'session KEY not found.'}), 400    
-
     data = request.get_json()
-    if not data:
-        logger.warning(f'endpoint "/accounts/v1/w" recieved invalid data. ({data})')
-        return jsonify({'error': 'missing JSON data'}), 400
-    
+
     media_id = data.get('media_id')
     video_id = data.get('video_id')
     paused_at = data.get('pausedAt', 0)
     seconds_played = data.get('secondsPlayed', 0)
     video_duration = data.get('videoDuration', 0)
 
+    if not key or not isinstance(key, str):
+        logger.warning(f'endpoint "/accounts/v1/w" session KEY not found. ({key})')
+        return jsonify({'error': 'session KEY not found.'}), 400    
+    
+    if not data:
+        logger.warning(f'endpoint "/accounts/v1/w" recieved invalid data. ({data})')
+        return jsonify({'error': 'missing JSON data'}), 400
+    
     if not all([video_id, media_id]):
         logger.warning(f'endpoint "/accounts/v1/w" recieved invalid data. ({data})')
         return jsonify({'error': 'invalid data. (!)'}), 400
@@ -877,6 +907,8 @@ def post_user_watchtime():
     if not isinstance(media_id, int) or not isinstance(video_id, int) or not isinstance(paused_at, int) or not isinstance(video_duration, int):
         logger.warning(f'endpoint "/accounts/v1/w" recieved invalid data. ({data})')
         return jsonify({'error': 'invalid data.'}), 400
+
+
 
     # Determin if the video is_watched by a user
     # Percentage thresholds
@@ -891,8 +923,7 @@ def post_user_watchtime():
             threshold = long_video_percentage
         # Calculate the threshold time
         if paused_at >= video_duration * threshold:
-            watched = True   # Mark as watched
-
+            watched = True
 
     try:
         data = {
@@ -915,8 +946,11 @@ def post_user_watchtime():
 @token_required
 def user_library():
     key = session.get('key')
+
     if not key or not isinstance(key, str):
         return jsonify({'error': 'invalid session key'}), 400
+
+
 
     if request.method == 'GET':
         id = request.args.get('id', type=int)
@@ -957,8 +991,6 @@ def user_library():
         }
 
         return jsonify(data)
-
-
     elif request.method == 'POST':
         data = request.get_json()
         media_id = data.get('media_id', None)
@@ -985,8 +1017,11 @@ def user_library():
 @token_required
 def user_library_all():
     key = session.get('key')
+
     if not key or not isinstance(key, str):
         return jsonify({'error': 'invalid session key'}), 400
+
+
 
     library = []
     playback = []
@@ -1029,11 +1064,12 @@ def user_library_all():
 @admin_required
 def post_delete_item_id():
     key = session.get('key')
+    data = request.get_json()
+
     if not key or not isinstance(key, str):
         logger.warning(f'endpoint "/content/v1/d" session KEY not found. ({key})')
         return jsonify({'error': 'session KEY not found.'}), 400    
 
-    data = request.get_json()
     if not data:
         logger.warning(f'endpoint "/content/v1/d" recieved invalid data. ({data})')
         return jsonify({'error': 'missing JSON data'}), 400
@@ -1042,6 +1078,8 @@ def post_delete_item_id():
     if not isinstance(media_id, int):
         logger.warning(f'endpoint "/content/v1/d" recieved invalid data. ({data})')
         return jsonify({'error': 'invalid data.'}), 400
+
+
 
     try:
         DB.delete_media_item(media_id)
@@ -1114,9 +1152,9 @@ def post_request_data():
 @login_required
 def serve_video():
     v = request.args.get('v', '')
+
     if not v:
         return jsonify({'error': 'invalid query.'}), 400
-
 
     if v.startswith(".."):
         return jsonify({'error': 'invalid data.'}), 400
@@ -1124,6 +1162,8 @@ def serve_video():
     if not isinstance(v, str):
         return jsonify({'error': 'invalid data.'}), 400
     
+
+
     try:
         video = DB.fetch_video_by_hash(v)
         path = os.path.normpath(video.file_path)
@@ -1141,6 +1181,7 @@ def serve_video():
 @login_required
 def serve_subtitles():
     s = request.args.get('s', '')
+
     if not s:
         return jsonify({'error': 'invalid query.'}), 400
     
@@ -1150,6 +1191,8 @@ def serve_subtitles():
     if not isinstance(s, str):
         return jsonify({'error': 'invalid data.'}), 400
     
+
+
     try:
         subtitles = DB.fetch_subtitle_by_hash(s)
         path = os.path.normpath(subtitles.file_path)
