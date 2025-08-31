@@ -144,6 +144,14 @@ def check_job_status(job_id):
 
 
 
+@app.route('/rescan', methods=['POST'])
+@limiter.limit('1 per 10 minutes')
+@login_required
+@admin_required
+def rescan():
+    threading.Thread(target=sync_libraries).start()
+    return jsonify({"message": "Rescan started"}), 202
+
 ## HTML Endpoints
 ## HTML Endpoints
 ## HTML Endpoints
