@@ -159,6 +159,8 @@ class VideoPageLoader {
             await Promise.all(subs.map(sub => this.video.insertSubtitles(sub)));
         }
 
+        addNextVideoButton(this.id, video, nextVideos)
+
         // Init videojs()
         const player = this.video.initVideoJS();
 
@@ -169,6 +171,42 @@ class VideoPageLoader {
         return player
     }
 }
+
+
+async function addNextVideoButton(media_id, video, nextVideos) {
+    const container = document.querySelector('.video-data-container');
+    if (!container) return;
+
+    // Find next episode
+    const currentEpisodeNumber = video.episode_number;
+    const nextEpisode = nextVideos.find(v => v.episode_number === currentEpisodeNumber + 1);
+
+    if (!nextEpisode) return; // No next episode
+
+    // Create button
+    const btn = document.createElement('button');
+    btn.textContent = `Next Episode: E${nextEpisode.episode_number} - ${nextEpisode.name}`;
+    btn.style.cursor = 'pointer';
+    btn.style.padding = '1rem 2rem';
+    btn.style.fontSize = '2.2rem';
+    btn.style.marginTop = '10px';
+    btn.style.background = 'linear-gradient(90deg, #f8e9a1, #d1ac70, #997463)';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '4px';
+    btn.style.transition = 'background 0.2s';
+
+    btn.addEventListener('mouseover', () => btn.style.background = 'linear-gradient(90deg, #f8eaa1c4, #d1ac70b4, #9974639f)');
+    btn.addEventListener('mouseout', () => btn.style.background = 'linear-gradient(90deg, #f8e9a1, #d1ac70, #997463)');
+
+    // Navigate to next episode on click
+    btn.addEventListener('click', () => {
+        window.location.href = `/${media_id}/watch/${nextEpisode.id}`;
+    });
+    
+    container.appendChild(btn);
+};
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname; // "/12/watch/240"
