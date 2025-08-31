@@ -4,11 +4,11 @@ A Python-based web application made with Flask that serves as a local media serv
 
 ## Preview
 
-![App Screenshot](https://raw.githubusercontent.com/adrian-slomka/local-media-server-v3/main/____preview/Screenshot%202025-08-18%20at%2010-13-22%20Stream%20Movies%20&%20TV%20Shows.png)
+![App Screenshot](https://raw.githubusercontent.com/adrian-slomka/local-media-server-v3/refs/heads/main/____preview/Screenshot%202025-08-18%20at%2010-13-22%20Stream%20Movies%20&%20TV%20Shows.png)
 
-![App Screenshot](https://raw.githubusercontent.com/adrian-slomka/local-media-server-v3/main/____preview/Screenshot%202025-08-18%20at%2010-13-11%20Stream%20Movies%20&%20TV%20Shows.png)
+![App Screenshot](https://raw.githubusercontent.com/adrian-slomka/local-media-server-v3/refs/heads/main/____preview/Screenshot%202025-08-18%20at%2010-13-11%20Stream%20Movies%20&%20TV%20Shows.png)
 
-![App Screenshot](https://raw.githubusercontent.com/adrian-slomka/local-media-server-v3/main/____preview/Screenshot%202025-08-18%20at%2010-14-04%20Stream%20Movies%20&%20TV%20Shows.png)
+![App Screenshot](https://raw.githubusercontent.com/adrian-slomka/local-media-server-v3/refs/heads/main/____preview/Screenshot%202025-08-18%20at%2010-14-04%20Stream%20Movies%20&%20TV%20Shows.png)
 
 
 ## Features
