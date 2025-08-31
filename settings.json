@@ -1,0 +1,7 @@
+{
+    "libraries": {"movies": ["D:/library/movies"],"tv": ["D:/library/series"]},
+    "enable_tmdb_requests": true,
+    "enable_tmdb_optional_images": true,
+    "enable_tmdb_daily_updates": true,
+    "keep_original_video_files": false
+}
