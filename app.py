@@ -230,6 +230,7 @@ def ratelimit_handler(e):
 ## API CONTENT Endpoints
 ## API CONTENT Endpoints
 @app.route('/content/v1/index')
+@token_required
 def get_index(): 
     try:
         index = DB.fetch_catalog_index()
