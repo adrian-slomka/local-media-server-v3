@@ -1198,8 +1198,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .media-back svg {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     transform: scaleX(1); /* make it 50% narrower */
     padding: 1rem;
     border-radius: 15px;
@@ -1241,12 +1241,12 @@ input:focus, textarea:focus, select:focus {
 
 .i-icon svg:hover {
     transform: scale(1.2);
-    color: rgb(50, 205, 50);
+    color: rgb(209, 46, 41);
     background-color: #4b423331;    
 }
 
 .i-icon-active {
-    color: rgb(50, 205, 50);        
+    color: rgb(209, 46, 41);        
 }
 
 .__options svg:hover {
