@@ -805,10 +805,10 @@ def append_content_ratings(session, item: MediaItem, ratings_dict: dict[tuple[st
     """
     Append content ratings to the media item if not already associated.
     """
-    existing_keys = {(cr.rating, cr.country) for cr in item.content_ratings}  # Avoid duplicates
-
     item.content_ratings.clear()
     session.flush()
+
+    existing_keys = {(cr.rating, cr.country) for cr in item.content_ratings}  # Avoid duplicates
 
     for rating_data in ratings:
         rating_key = (rating_data.get('rating'), rating_data.get('iso_3166_1'))
@@ -820,10 +820,10 @@ def append_content_ratings(session, item: MediaItem, ratings_dict: dict[tuple[st
 
 
 def append_production_companies(session, item: MediaItem, company_dict: dict[str, ProductionCompany], companies: list[dict]):
-    existing_names = {c.name for c in item.production_companies}
-
     item.production_companies.clear()
     session.flush()
+
+    existing_names = {c.name for c in item.production_companies}
 
     for company in companies:
         name = company.get('name')
@@ -837,10 +837,10 @@ def append_production_companies(session, item: MediaItem, company_dict: dict[str
 
 
 def append_networks(session, item: MediaItem, network_dict: dict[str, Network], networks: list[dict]):
-    existing_names = {n.name for n in item.networks}
-
     item.networks.clear()
     session.flush()
+
+    existing_names = {n.name for n in item.networks}
 
     for network_data in networks:
         name = network_data.get('name')
@@ -854,10 +854,10 @@ def append_networks(session, item: MediaItem, network_dict: dict[str, Network], 
 
 
 def append_videos(session, item: MediaItem, videos: list[dict]):
-    existing_videos = {video.key: video for video in item.videos}
-
     item.videos.clear()
     session.flush()
+
+    existing_videos = {video.key: video for video in item.videos}
 
     for video_data in videos:
         key = video_data.get('key')
@@ -892,10 +892,10 @@ def append_videos(session, item: MediaItem, videos: list[dict]):
 
 
 def append_logos(session, item: MediaItem, logos: list):
-    existing_logos = {logo.file_path: logo for logo in item.logos}
-
     item.logos.clear()
     session.flush()
+
+    existing_logos = {logo.file_path: logo for logo in item.logos}
 
     for logo_data in logos:
         file_path = logo_data.get('file_path')
