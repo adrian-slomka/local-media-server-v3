@@ -675,6 +675,11 @@ def get_videos(item_id):
             "height": v.height,
             "aspect_ratio": v.aspect_ratio,
         }
+        if v.season_number:
+            metadata.update({
+                "season_number": v.season_number,
+                "episode_number": v.episode_number,
+            })
 
         # Subtitles
         subtitles = [{
@@ -742,6 +747,12 @@ def get_video(video_id):
         "height": video.height,
         "aspect_ratio": video.aspect_ratio,
     }
+
+    if video.season_number:
+        metadata.update({
+            "season_number": video.season_number,
+            "episode_number": video.episode_number,
+        })
 
     data = {
         "id": video.id,

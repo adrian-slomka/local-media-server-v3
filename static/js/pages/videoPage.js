@@ -88,10 +88,13 @@ class PageDetails {
     }
 
     async updatePage(item, video, mediaId) {
-        const pageT = video?.season_number
-            ? `Season ${video.season_number || 0} Episode ${video.episode_number || 0}${video.name ? " - " + video.name : ""}`
+        const season = video?.season_number ?? video?.metadata.season_number;
+        const episode = video?.episode_number ?? video?.metadata.episode_number;
+        
+        const pageT = season != null
+            ? `Season ${season} Episode ${episode}${video?.name ? " - " + video.name : ""}`
             : '';
-
+        
         if (this.pageTitleEl) {
             this.pageTitleEl.textContent = `Watching: ${item.original_title || item.title || ""} ${pageT}`;
         }
@@ -105,9 +108,14 @@ class PageDetails {
         }
 
         if (this.mediaEpisodeEl) {
-            this.mediaEpisodeEl.textContent = video?.season_number
-                ? `S${video.season_number || 0} E${video.episode_number || 0}${video.name ? " - " + video.name : ""}`
-                : '';
+            const season = video?.season_number ?? video?.metadata.season_number;
+            const episode = video?.episode_number ?? video?.metadata.episode_number;
+        
+            if (season != null) {
+                this.mediaEpisodeEl.textContent = `S${season} E${episode}${video?.name ? " - " + video.name : ""}`;
+            } else {
+                this.mediaEpisodeEl.textContent = '';
+            }
         }
 
         const date = video?.air_date || item.release_date || "";
@@ -178,14 +186,14 @@ async function addNextVideoButton(media_id, video, nextVideos) {
     if (!container) return;
 
     // Find next episode
-    const currentEpisodeNumber = video.episode_number;
-    const nextEpisode = nextVideos.find(v => v.episode_number === currentEpisodeNumber + 1);
+    const currentEpisodeNumber = video.metadata.episode_number;
+    const nextEpisode = nextVideos.find(v => v.metadata.episode_number === currentEpisodeNumber + 1);
 
     if (!nextEpisode) return; // No next episode
 
     // Create button
     const btn = document.createElement('button');
-    btn.textContent = `Next Episode: E${nextEpisode.episode_number} - ${nextEpisode.name}`;
+    btn.textContent = `Next Episode: E${nextEpisode.episode_number || nextEpisode.metadata.episode_number} - ${nextEpisode.name || ''}`;
     btn.style.cursor = 'pointer';
     btn.style.padding = '1rem 2rem';
     btn.style.fontSize = '2.2rem';
