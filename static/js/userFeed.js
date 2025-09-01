@@ -43,28 +43,7 @@ async function renderHeroCards(data, elementId) {
     dotsContainer.innerHTML = ''; 
 
 
-
-
-    const filteredData = [];
-    const seen = {}; // { media_id: item }
-    
-    for (const item of data) {
-      const mediaId = item.media_id;
-    
-      // If media_id haven't seen yet, or item is more recent
-      if (!seen[mediaId] || item.entry_updated > seen[mediaId].entry_updated) {
-        seen[mediaId] = item;
-      }
-    }
-    
-    for (const key in seen) {
-      filteredData.push(seen[key]);
-    }
-
-    filteredData.sort((a, b) => new Date(b.entry_updated) - new Date(a.entry_updated));
-    const FiveVids = filteredData.slice(0, 5);
-
-    FiveVids.forEach((item, index) => {
+    data.forEach((item, index) => {
         const title = item.name || 'Untitled';
         const SeasonEp = item.season_number ? `S${item.season_number}: Episode ${item.episode_number || 0}` : null;
 
@@ -163,13 +142,32 @@ async function loadVideo(id) {
 }
 
 async function loadContinueFeed(data) {
+    // group episodes to one series, keep only the most recently viewed episode from series
+    const filteredData = [];
+    const seen = {}; // { media_id: item }
+    
+    for (const item of data) {
+      const mediaId = item.media_id;
+    
+      // If media_id haven't seen yet, or item is more recent
+      if (!seen[mediaId] || item.entry_updated > seen[mediaId].entry_updated) {
+        seen[mediaId] = item;
+      }
+    }
+
+    for (const key in seen) {
+      filteredData.push(seen[key]);
+    }
+    data = filteredData.sort((a, b) => new Date(b.entry_updated) - new Date(a.entry_updated)).slice(0,5);
+    
+    // fetch
     const promises = data.map(async item => {
         const apiResult = await loadVideo(item.video_id);
         return { ...item, ...apiResult }; // merge API result into original item
     });
 
     const catalog = await Promise.all(promises);
-    catalog.sort((a, b) => new Date(b.entry_updated) - new Date(a.entry_updated));
+    
     return catalog;
 }
 

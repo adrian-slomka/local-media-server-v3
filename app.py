@@ -1088,7 +1088,7 @@ def user_library_all():
     videos = []
     if playback:
         for video in playback:
-            videos.append({'video_id': video.video_id, 'watched': video.watched, 'paused_at': video.paused_at, 'duration': video.video_duration, 'entry_updated': video.entry_updated})
+            videos.append({'media_id': video.media_id, 'video_id': video.video_id, 'watched': video.watched, 'paused_at': video.paused_at, 'duration': video.video_duration, 'entry_updated': video.entry_updated})
 
     return jsonify({'library': lib, 'videos': videos})
 
