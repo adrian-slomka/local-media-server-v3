@@ -82,16 +82,65 @@ A Python-based web application made with Flask that serves as a local media serv
 
     or via provided .bat file (check .bat since it uses venv path)
 
-2. The web application will be accessible on [http://localhost:8000](http://localhost:8000). Open this URL in your web browser. 
-Additioanly, the app can be accessed on mobile devices when connected to the same wi-fi network:
+2. The web application will be accessible on [http://localhost:8000](http://localhost:8000). Open this URL in your web browser. Additionally, the app can be accessed on mobile devices when connected to the same wi-fi network:
 - Get your hosting PC's local ip4 adress (open cmd and type: ipcofing and look for ipv4). 
 - Next, on your mobile device connected to the same Wi-Fi network type that ip adress followed by :8000, example: 192.168.0.100:8000
 
-3. To add your media files first create folder where you will store your movies or series. 
-        
-4. In the app's main folder, open settings.json and paste your path/s like so: ```"libraries": {"series": ["D:/Lib/series", "F:/Lib/series2"], "movies": ["D:/Lib/movies"] },``` (don't forget commas)
+3. To add your media files first create folder where you will store your movies or series. An ideal folder structure:
+    ```
+    library/
+    ├── movies/
+    │   ├── Movie1.mp4
+    │   └── Movie2.mp4
+    └── tv/
+        ├── Wednesday/
+        │   ├── Season 1/      (or S1, S01)
+        │   │   ├── Episode1.mp4
+        │   │   ├── Episode2.mp4
+        │   │   └── ...
+        │   └── Season 2/
+        │       └── ...
+        └── AnotherSeries/
+            └── Season 1/
+                └── ...
+    ```
+- Movies can be placed directly inside the movies/ folder. They will automatically be moved into their own folders.
+- For TV series, create a folder for each series inside tv/, then create season folders (Season 1, S1, or S01) and place episodes (.mp4 files) inside.
+- If a movie or series isn’t fetching proper data from TMDB, you can add the release year to the top folder name, e.g., "Wednesday 2022".
+
+4. In the app's main folder, open settings.json and paste your path/s like so (don't forget commas): 
+```
+"libraries": {"series": ["D:/library/series", "F:/libraryX/series222"], "movies": ["D:/library/movies"] },
+``` 
 
 5. The app will always scan for new files on .bat start. Additionally, user with admin permission can re-scan library using button on the home page.
+
+6. If no subtitles are found or extracted from the video container, you can add them manually and then re-scan library. 
+- Single subtitle: Place it in the same folder as the video, with the same name as the video file.
+- Multiple subtitles: Create a folder with the same name as the video or episode and put all subtitle files inside.
+- **Re-scan requirement**: If the video was already scanned and added, you’ll need to temporarily move the video file or its folder out of the library and do a library re-scan. After that, add your subtitles and re-scan again.
+- Language codes: Add a language code suffix (e.g., _en, _eng, _english, _fr) to the subtitle filename. Without it, the subtitle will be displayed as "unknown".
+
+- Example visualized folder structure:
+
+    ```
+    library/
+    ├── movies/
+    │   ├── MovieTitle1/
+    │   │   ├── Movie123.mp4
+    │   │   └── Movie123.srt       <-- single subtitle in same folder
+    └── tv/
+        ├── Wednesday/
+        │   ├── Season 1/
+        │   │   ├── Episode1.mp4
+        │   │   ├── Episode1/       <-- multiple subtitles for this episode
+        │   │   │   ├── 1_eng.srt    <-- add the _en / _eng / _english, without it will be displayed as 'unknown'
+        │   │   │   ├── 2_english.srt
+        │   │   │   ├── Episode1_en.srt
+        │   │   │   └── 3_fr.srt
+    ```
+    *Subtitles with .srt extension will be auto converted to .vtt for html compatibility.*
+
 
 ## Limitations
 
