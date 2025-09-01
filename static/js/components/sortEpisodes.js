@@ -14,27 +14,27 @@ function sortVideos(sortType) {
     const items = Array.from(container.querySelectorAll("a.video_url"));
 
     items.sort((a, b) => {
-      const videoA = a.querySelector(".media-video");
-      const videoB = b.querySelector(".media-video");
+      const textA = a.querySelector(".video-text-b")?.textContent || "";
+      const textB = b.querySelector(".video-text-b")?.textContent || "";
 
-      const dateA = new Date(videoA.dataset.date);
-      const dateB = new Date(videoB.dataset.date);
+      const { season: seasonA, episode: epA } = parseSeasonEpisode(textA);
+      const { season: seasonB, episode: epB } = parseSeasonEpisode(textB);
 
-      if (dateA.getTime() === dateB.getTime()) {
-        // Same date — sort by season and episode from video-text-b
-        const textA = a.querySelector(".video-text-b")?.textContent || "";
-        const textB = b.querySelector(".video-text-b")?.textContent || "";
-
-        const { season: seasonA, episode: epA } = parseSeasonEpisode(textA);
-        const { season: seasonB, episode: epB } = parseSeasonEpisode(textB);
-
+      if (seasonA != null && epA != null && seasonB != null && epB != null) {
         if (seasonA !== seasonB) {
           return sortType === "newest" ? seasonB - seasonA : seasonA - seasonB;
         }
-        return sortType === "newest" ? epB - epA : epA - epB;
+        return sortType === "newest" ? epB - epA : epA - epB;  
+      } else {
+        const videoA = a.querySelector(".media-video");
+        const videoB = b.querySelector(".media-video");
+        const dateA = new Date(videoA?.dataset.date ?? 0);
+        const dateB = new Date(videoB?.dataset.date ?? 0);
+        return sortType === "newest" ? dateB - dateA : dateA - dateB
       }
 
-      return sortType === "newest" ? dateB - dateA : dateA - dateB;
+
+
     });
 
     items.forEach(item => container.appendChild(item));
