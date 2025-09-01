@@ -265,7 +265,7 @@ def get_index():
 @token_required
 def get_catalog(): 
     try:
-        catalog = DB.fetch_catalog(order_by='entry_updated', limit=50)
+        catalog = DB.fetch_catalog(order_by='new_video_inserted', limit=50)
     except Exception as e:
         logger.error(f'failed to fetch catalog, exception {e}.', exc_info=True)
         return jsonify({'error': 'internal error.'}), 400
@@ -280,7 +280,7 @@ def get_catalog():
              'entry_updated': item.entry_updated,
              'newest_video': item.new_video_inserted
              } for item in catalog]
-    data = sorted(data, key=lambda k:k['newest_video'], reverse=True)
+
     return jsonify(data)
 
 
@@ -288,7 +288,7 @@ def get_catalog():
 @token_required
 def get_catalog_tv():
     try:
-        catalog = DB.fetch_catalog(order_by='entry_updated', media_type='tv')
+        catalog = DB.fetch_catalog(order_by='new_video_inserted', media_type='tv')
     except Exception as e:
         logger.error(f'failed to fetch tv catalog, exception {e}.', exc_info=True)
         return jsonify({'error': 'internal error.'}), 400
@@ -303,7 +303,7 @@ def get_catalog_tv():
              'entry_updated': item.entry_updated,
              'newest_video': item.new_video_inserted
              } for item in catalog]
-    data = sorted(data, key=lambda k:k['newest_video'], reverse=True)
+
     return jsonify(data)
 
 
@@ -311,7 +311,7 @@ def get_catalog_tv():
 @token_required
 def get_catalog_movies():
     try:
-        catalog = DB.fetch_catalog(order_by='entry_updated', media_type='movie')
+        catalog = DB.fetch_catalog(order_by='new_video_inserted', media_type='movie')
     except Exception as e:
         logger.error(f'failed to fetch movies catalog, exception {e}.', exc_info=True)
         return jsonify({'error': 'internal error.'}), 400
@@ -326,7 +326,7 @@ def get_catalog_movies():
              'entry_updated': item.entry_updated,
              'newest_video': item.new_video_inserted
              } for item in catalog]
-    data = sorted(data, key=lambda k:k['newest_video'], reverse=True)
+
     return jsonify(data)
 
 
