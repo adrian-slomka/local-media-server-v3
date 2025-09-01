@@ -90,7 +90,7 @@ def add_account(password_string: str, is_admin=False, is_adult=True):
         logger.error(f"user account creation failed: exception during generating {e}", exc_info=True)
         raise
     
-    insert_new_user(password, key, is_admin, is_adult)
+    return insert_new_user(password, key, is_admin, is_adult)
 
 
 
@@ -1302,6 +1302,7 @@ def insert_new_user(password: str, key: str, is_admin=False, is_adult=True):
         session.commit()
 
     logger.info("New user account created successfully.")
+    return True
 
 
 class DB():

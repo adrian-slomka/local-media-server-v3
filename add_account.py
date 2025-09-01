@@ -20,8 +20,11 @@ if __name__ == "__main__":
             confirmation = str(input('Confirm the password: '))
 
             if password == confirmation:
-                add_account(password, is_admin, is_adult)
-                print('New user account has been created successfully.')
+                if add_account(password, bool(is_admin), bool(is_adult)):
+                    print('New user account has been created successfully.')
+                else:
+                    print('Failed to create new user account!')
+
                 break
             else:
                 print('Passwords do not match. Please try again.')
