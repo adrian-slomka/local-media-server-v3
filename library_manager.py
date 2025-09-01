@@ -42,11 +42,11 @@ def create_settings():
         return
     
     template = {
-        'libraries': {'movies': [],'tv': []},
-        'enable_tmdb_requests': True,
-        'enable_tmdb_daily_updates': True,
-        'enable_tmdb_optional_images': True,
-        'keep_original_video_files': False
+        'libraries': {'movies': [],'tv': []},       # Lists of movies and TV libraries
+        'enable_tmdb_requests': True,               # Enable TMDb API requests
+        'enable_tmdb_daily_updates': True,          # Enable automatic background updates (fetch fresh TMDb data every 24h)
+        'enable_tmdb_optional_images': False,       # Include optional images like actor profile pictures (disabled by default)
+        'keep_original_video_files': False          # If True, original video files won't be deleted after transcoding
     }
 
     try:
