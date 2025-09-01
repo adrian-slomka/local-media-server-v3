@@ -568,7 +568,7 @@ class UserLibrary(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_key: Mapped[str] = mapped_column(ForeignKey('users.key', ondelete="CASCADE"), nullable=False, index=True)
 
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(nullable=True, index=True)
 
     rated: Mapped[int] = mapped_column(nullable=True)
     watchlisted: Mapped[int] = mapped_column(nullable=True)
@@ -1645,6 +1645,7 @@ class DB():
             item = session.get(MediaItem, id)
 
             if item:
+                session.query(UserLibrary).filter_by(media_id=id).delete(synchronize_session=False)
                 session.delete(item)
                 session.commit()            
 
