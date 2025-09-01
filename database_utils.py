@@ -591,8 +591,8 @@ class UserPlayback(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_key: Mapped[str] = mapped_column(ForeignKey('users.key', ondelete="CASCADE"), nullable=False, index=True)
 
-    media_id: Mapped[int] = mapped_column(ForeignKey('media_items.id', ondelete="CASCADE"), nullable=False, index=True)
-    video_id: Mapped[int] = mapped_column(ForeignKey('media_metadata.id', ondelete="CASCADE"), nullable=False, index=True)
+    media_id: Mapped[int] = mapped_column(nullable=True, index=True) # made nullable in case of saving data for statistics
+    video_id: Mapped[int] = mapped_column(nullable=True, index=True) # made nullable in case of saving data for statistics
 
     watched: Mapped[bool] = mapped_column(Boolean, nullable=True)
     paused_at: Mapped[int] = mapped_column(nullable=True)
@@ -1257,6 +1257,7 @@ def delete_metadata_videos(missing_video_hashes: list):
         for hash_key in missing_video_hashes:
             video = session.query(VideoMetadata).filter_by(hash_key=hash_key).one_or_none()
             if video:
+                session.query(UserPlayback).filter_by(video_id=video.id).delete(synchronize_session=False)
                 session.delete(video)
         session.commit()
 
