@@ -96,6 +96,7 @@ Additioanly, the app can be accessed on mobile devices when connected to the sam
 ## Limitations
 
 - **Re-encoding Performance**: Since the app uses GPU acceleration, re-encoding large files or a large number of files may take a while and can put a significant load on your system.
+- **Unoptimized for slow connection**: By default, images like posters, backdrops, logos and more are downloaded and displayed at full resolution. 
 - !! **Security over internet**: I'm no expert, the app was made strictly for local, home wi-fi use only. If you do choose to port forward and use it over the net be aware that the security may be subpar.
 
 
